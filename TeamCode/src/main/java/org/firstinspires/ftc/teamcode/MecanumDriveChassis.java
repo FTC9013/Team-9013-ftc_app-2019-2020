@@ -6,7 +6,13 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import java.util.Collections;
 import java.util.List;
 import java.util.Arrays;
+import com.qualcomm.hardware.bosch.BNO055IMU;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
+import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
 public class MecanumDriveChassis
 {
@@ -15,6 +21,9 @@ public class MecanumDriveChassis
   private DcMotor rightFrontDrive = null;
   private DcMotor rightRearDrive = null;
 
+  private BNO055IMU imu;
+  private static IMUTelemetry IMUTelemetry;
+  private Orientation angles; // stores the current orientation of the bot from the IMU
 
   private static double leftFrontDriveSpeed;
   private static double leftRearDriveSpeed;
@@ -36,7 +45,7 @@ public class MecanumDriveChassis
 
   // Robot speed scaling factor (% of joystick input to use)
   // applied uniformly across all joystick inputs to the JoystickToMotion() method.
-  private final double speedScale = 0.8;
+  private final double speedScale = 1.0;
 
   private PID headingPID = null;
 
@@ -49,6 +58,20 @@ public class MecanumDriveChassis
     leftRearDrive = hardwareMap.get(DcMotor.class, "lRear"); //hub 3 port 2
     rightFrontDrive = hardwareMap.get(DcMotor.class, "rFront"); //hub 3 port 1
     rightRearDrive = hardwareMap.get(DcMotor.class, "rRear"); //hub 3 port 3
+
+    // Get and initialize the IMU. (we will use the imu on hub id = 3)
+    imu = hardwareMap.get(BNO055IMU.class, "imu");
+
+    BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+    IMUTelemetry = new IMUTelemetry();
+
+    // set the initial imu mode parameters.
+    parameters.mode = BNO055IMU.SensorMode.IMU;
+    parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
+    parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+    parameters.loggingEnabled      = false;
+
+    imu.initialize(parameters);
 
     leftFrontDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     leftRearDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -89,8 +112,15 @@ public class MecanumDriveChassis
   // Left  Y = forward, backward movement
   // Left  X = side to side (strafe)
   // Right X = rotate in place
-  void drive(float driveLeftY, float driveLeftX, float driveRightX )
+  void drive(float driveLeftY, float driveLeftX, float driveRightX, Telemetry telemetry)
   {
+    IMUTelemetry telData = testAngle(-120);
+
+    telemetry.addData("Heading (deg) ", " %.2f", telData.heading );
+    telemetry.addData("Error (deg) ", " %.2f",telData.error );
+    telemetry.update();
+
+
     // calculate the vectors multiply input values by scaling factor for max speed.
     joystickToMotion( driveLeftY * speedScale, driveLeftX * speedScale,
         driveRightX * speedScale  );
@@ -191,4 +221,26 @@ public class MecanumDriveChassis
     rightRearDrive.setPower(speeds.get(2));
     leftRearDrive.setPower(speeds.get(3));
   }
+
+  // these methods are just here for reference at this point.
+  // use to help understand what we need to do with the IMU.
+  boolean IMU_IsCalibrated () {
+    return imu.isGyroCalibrated();
+  }
+
+
+  private IMUTelemetry testAngle(double desiredAngle)
+  {
+    // desired angle in degrees +/- 0 to 180 where CCW is + and CW is -
+    angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+
+    IMUTelemetry.heading = angles.firstAngle;
+    IMUTelemetry.error = desiredAngle - angles.firstAngle;
+    if(IMUTelemetry.error > 180 ) {IMUTelemetry.error -= 360;}
+    if(IMUTelemetry.error < -180 ) {IMUTelemetry.error += 360;}
+
+    return IMUTelemetry;
+
+  }
+
 }
