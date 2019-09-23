@@ -67,7 +67,7 @@ public class MecanumDriveChassis
 
     // set the initial imu mode parameters.
     parameters.mode = BNO055IMU.SensorMode.IMU;
-    parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
+    parameters.angleUnit           = BNO055IMU.AngleUnit.RADIANS;
     parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
     parameters.loggingEnabled      = false;
 
@@ -114,14 +114,17 @@ public class MecanumDriveChassis
   // Right X = rotate in place
   void drive(float driveLeftY, float driveLeftX, float driveRightX, Telemetry telemetry)
   {
-    IMUTelemetry telData = testAngle(-120);
+    IMUTelemetry telData = testAngle(-.087);
 
-    telemetry.addData("Heading (deg) ", " %.2f", telData.heading );
-    telemetry.addData("Error (deg) ", " %.2f",telData.error );
+    telemetry.addData("Heading (rad) ", " %.4f", telData.heading );
+    telemetry.addData("Error (rad) ", " %.4f",telData.error );
     telemetry.update();
 
 
-    // calculate the vectors multiply input values by scaling factor for max speed.
+    vTheta = telData.error;
+
+
+        // calculate the vectors multiply input values by scaling factor for max speed.
     joystickToMotion( driveLeftY * speedScale, driveLeftX * speedScale,
         driveRightX * speedScale  );
 
@@ -155,7 +158,7 @@ public class MecanumDriveChassis
     // simply takes the right stick X value and invert to use as a rotational speed.
     // inverted since we want CW rotation on a positive value.
     // which is opposite of what PowerToWheels() wants in polar positive rotation (CCW).
-    vTheta = -rightStickX;
+//    vTheta = -rightStickX;
   }
 
   /**
@@ -232,12 +235,12 @@ public class MecanumDriveChassis
   private IMUTelemetry testAngle(double desiredAngle)
   {
     // desired angle in degrees +/- 0 to 180 where CCW is + and CW is -
-    angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+    angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS);
 
     IMUTelemetry.heading = angles.firstAngle;
     IMUTelemetry.error = desiredAngle - angles.firstAngle;
-    if(IMUTelemetry.error > 180 ) {IMUTelemetry.error -= 360;}
-    if(IMUTelemetry.error < -180 ) {IMUTelemetry.error += 360;}
+    if(IMUTelemetry.error > Math.PI ) {IMUTelemetry.error -= Math.PI*2;}
+    if(IMUTelemetry.error < -Math.PI ) {IMUTelemetry.error += Math.PI*2;}
 
     return IMUTelemetry;
 
