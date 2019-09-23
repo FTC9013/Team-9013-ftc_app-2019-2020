@@ -49,10 +49,10 @@ public class TeleOpPrimary extends LinearOpMode {
       driveChassis.drive(gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);
 
       // Show the elapsed game time and wheel power.
-      telemetry.addData("Status", "Run Time: " + runtime.toString());
-      telemetry.addData("Stick", "Y_left (%.2f), X_left (%.2f)",
-          gamepad1.left_stick_y, gamepad1.left_stick_x);
-      telemetry.update();
+//      telemetry.addData("Status", "Run Time: " + runtime.toString());
+//      telemetry.addData("Stick", "Y_left (%.2f), X_left (%.2f)",
+//          gamepad1.left_stick_y, gamepad1.left_stick_x);
+//      telemetry.update();
     }
   }
 }
