@@ -65,6 +65,8 @@ public class MecanumDriveChassis
   private final double OutputFilter = 0.1;
   private final double SetpointRange = 1;
 
+  private final double headdingThreshold = 0.1;
+
   private PID headingPID = null;
 
   MecanumDriveChassis(HardwareMap hardwareMap)
@@ -195,8 +197,12 @@ public class MecanumDriveChassis
     // which is opposite of what PowerToWheels() wants in polar positive rotation (CCW).
 //    vTheta = -rightStickX;
 
-    desiredHeading = angles.firstAngle - rightStickX;
-
+    // if there is new joystick input update the heading otherwise hold the current heading as
+    // the setpoint.
+    if(Math.abs(rightStickX) > headdingThreshold)
+    {
+      desiredHeading = angles.firstAngle - rightStickX;
+    }
     testAngle(desiredHeading);
     vTheta = IMUTelemetry.error;
 
