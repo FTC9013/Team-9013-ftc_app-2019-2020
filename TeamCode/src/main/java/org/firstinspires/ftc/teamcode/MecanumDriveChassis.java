@@ -7,12 +7,15 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Arrays;
 import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.robotcore.hardware.PWMOutputImpl;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+
+import static java.lang.Thread.sleep;
 
 public class MecanumDriveChassis
 {
@@ -40,12 +43,27 @@ public class MecanumDriveChassis
   // relative to the direction the bot is facing.
   private static double thetaD;
 
-  // Speed for changing direction [-1, 1] (tank drive style rotate, mouse)
+  // Speed component for rotation about the Z axis
   private static double vTheta;
+
+  //
+  private static double desiredHeading;  // rotates about the Z axis
+
 
   // Robot speed scaling factor (% of joystick input to use)
   // applied uniformly across all joystick inputs to the JoystickToMotion() method.
   private final double speedScale = 1.0;
+
+  // PID for the heading
+  private final double propCoeff = 0.0;
+  private final double integCoeff = 0.01;
+  private final double diffCoeff = 0.05;
+  private final double OutputLowLimit = -1;
+  private final double OutputHighLimit = 1;
+  private final double MaxIOutput = 0.5;
+  private final double OutputRampRate = 0.1;
+  private final double OutputFilter = 0.1;
+  private final double SetpointRange = 1;
 
   private PID headingPID = null;
 
@@ -107,6 +125,32 @@ public class MecanumDriveChassis
     leftFrontDrive.setPower(leftFrontDriveSpeed);
     rightRearDrive.setPower(rightRearDriveSpeed);
     leftRearDrive.setPower(leftRearDriveSpeed);
+
+    // make sure the gyro is calibrated before continuing
+    while (!imu.isGyroCalibrated())
+    {
+      try {
+        sleep(50);
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+      }
+    }
+
+    // set initial desired heading to the current actual heading.
+    angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS);
+    desiredHeading = angles.firstAngle;
+    // get the initial error and put valid data in the telemetry from the imu
+    testAngle(desiredHeading);
+
+    // create and initialize the PID for the heading
+//    headingPID = new PID(propCoeff, integCoeff, diffCoeff);
+
+    // initially setup the PID parameters
+//    headingPID.setOutputLimits( OutputLowLimit, OutputHighLimit);
+//    headingPID.setMaxIOutput(MaxIOutput);
+//    headingPID.setOutputRampRate(OutputRampRate);
+//    headingPID.setOutputFilter(OutputFilter);
+//    headingPID.setSetpointRange(SetpointRange);
   }
 
   // Left  Y = forward, backward movement
@@ -114,22 +158,13 @@ public class MecanumDriveChassis
   // Right X = rotate in place
   void drive(float driveLeftY, float driveLeftX, float driveRightX, Telemetry telemetry)
   {
-    IMUTelemetry telData = testAngle(-.087);
-
-    telemetry.addData("Heading (rad) ", " %.4f", telData.heading );
-    telemetry.addData("Error (rad) ", " %.4f",telData.error );
+    telemetry.addData("Heading (rad) ", " %.4f", IMUTelemetry.heading );
+    telemetry.addData("Error (rad) ", " %.4f",IMUTelemetry.error );
     telemetry.update();
 
-
-    vTheta = telData.error;
-
-
-        // calculate the vectors multiply input values by scaling factor for max speed.
+    // calculate the vectors multiply input values by scaling factor for max speed.
     joystickToMotion( driveLeftY * speedScale, driveLeftX * speedScale,
         driveRightX * speedScale  );
-
-    // Math out what to send to the motors and send it.
-    PowerToWheels();
   }
 
   /**
@@ -159,6 +194,16 @@ public class MecanumDriveChassis
     // inverted since we want CW rotation on a positive value.
     // which is opposite of what PowerToWheels() wants in polar positive rotation (CCW).
 //    vTheta = -rightStickX;
+
+    desiredHeading = angles.firstAngle - rightStickX;
+
+    testAngle(desiredHeading);
+    vTheta = IMUTelemetry.error;
+
+    // Math out what to send to the motors and send it.
+    PowerToWheels();
+
+//    vTheta = headingPID.getOutput(angles.firstAngle, desiredHeading );
   }
 
   /**
@@ -225,14 +270,7 @@ public class MecanumDriveChassis
     leftRearDrive.setPower(speeds.get(3));
   }
 
-  // these methods are just here for reference at this point.
-  // use to help understand what we need to do with the IMU.
-  boolean IMU_IsCalibrated () {
-    return imu.isGyroCalibrated();
-  }
-
-
-  private IMUTelemetry testAngle(double desiredAngle)
+  private void testAngle(double desiredAngle)
   {
     // desired angle in degrees +/- 0 to 180 where CCW is + and CW is -
     angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS);
@@ -241,9 +279,5 @@ public class MecanumDriveChassis
     IMUTelemetry.error = desiredAngle - angles.firstAngle;
     if(IMUTelemetry.error > Math.PI ) {IMUTelemetry.error -= Math.PI*2;}
     if(IMUTelemetry.error < -Math.PI ) {IMUTelemetry.error += Math.PI*2;}
-
-    return IMUTelemetry;
-
   }
-
 }
