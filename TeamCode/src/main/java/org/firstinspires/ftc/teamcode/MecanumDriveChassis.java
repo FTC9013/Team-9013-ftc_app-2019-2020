@@ -3,6 +3,8 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+
+import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
 import java.util.Arrays;
@@ -65,7 +67,7 @@ public class MecanumDriveChassis
   private final double OutputFilter = 0.1;
   private final double SetpointRange = 1;
 
-  private final double headdingThreshold = 0.1;
+  private final double headdingThreshold = 0.2;
 
   private PID headingPID = null;
 
@@ -204,7 +206,7 @@ public class MecanumDriveChassis
       desiredHeading = angles.firstAngle - rightStickX;
     }
     testAngle(desiredHeading);
-    vTheta = IMUTelemetry.error;
+    vTheta = round((float)IMUTelemetry.error, 2);
 
     // Math out what to send to the motors and send it.
     PowerToWheels();
@@ -285,5 +287,10 @@ public class MecanumDriveChassis
     IMUTelemetry.error = desiredAngle - angles.firstAngle;
     if(IMUTelemetry.error > Math.PI ) {IMUTelemetry.error -= Math.PI*2;}
     if(IMUTelemetry.error < -Math.PI ) {IMUTelemetry.error += Math.PI*2;}
+  }
+  private static float round(float d, int decimalPlace) {
+    BigDecimal bd = new BigDecimal(Float.toString(d));
+    bd = bd.setScale(decimalPlace, BigDecimal.ROUND_HALF_UP);
+    return bd.floatValue();
   }
 }
