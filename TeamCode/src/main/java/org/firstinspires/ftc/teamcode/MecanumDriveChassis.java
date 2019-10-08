@@ -57,15 +57,15 @@ public class MecanumDriveChassis
   private final double speedScale = 1.0;
 
   // PID for the heading
-  private final double propCoeff = 0.0;
-  private final double integCoeff = 0.01;
-  private final double diffCoeff = 0.05;
+  private final double propCoeff = 0.1;
+  private final double integCoeff = 0.00;
+  private final double diffCoeff = 0.00;
   private final double OutputLowLimit = -1;
   private final double OutputHighLimit = 1;
-  private final double MaxIOutput = 0.5;
+  private final double MaxIOutput = 0.3;
   private final double OutputRampRate = 0.1;
   private final double OutputFilter = 0.1;
-  private final double SetpointRange = 1;
+  private final double SetpointRange = 3.1416;
 
   private final double headdingThreshold = 0.2;
 
@@ -147,14 +147,14 @@ public class MecanumDriveChassis
     testAngle(desiredHeading);
 
     // create and initialize the PID for the heading
-//    headingPID = new PID(propCoeff, integCoeff, diffCoeff);
+    headingPID = new PID(propCoeff, integCoeff, diffCoeff);
 
     // initially setup the PID parameters
-//    headingPID.setOutputLimits( OutputLowLimit, OutputHighLimit);
-//    headingPID.setMaxIOutput(MaxIOutput);
-//    headingPID.setOutputRampRate(OutputRampRate);
-//    headingPID.setOutputFilter(OutputFilter);
-//    headingPID.setSetpointRange(SetpointRange);
+    headingPID.setOutputLimits( OutputLowLimit, OutputHighLimit);
+    headingPID.setMaxIOutput(MaxIOutput);
+    headingPID.setOutputRampRate(OutputRampRate);
+    headingPID.setOutputFilter(OutputFilter);
+    headingPID.setSetpointRange(SetpointRange);
   }
 
   // Left  Y = forward, backward movement
@@ -201,12 +201,19 @@ public class MecanumDriveChassis
 
     // if there is new joystick input update the heading otherwise hold the current heading as
     // the setpoint.
+    // headding is in radians so just using the +/- 1 from the joystick to add as a bias to the
+    // current angle will put the desired head +/- 57 degrees from current.  This should be more
+    // than enough to move the bot at max rotation speed.
+    // The chasing of this setpoint is controled by the PID loop on the vTheta value.
     if(Math.abs(rightStickX) > headdingThreshold)
     {
       desiredHeading = angles.firstAngle - rightStickX;
     }
     testAngle(desiredHeading);
-    vTheta = round((float)IMUTelemetry.error, 2);
+    //vTheta = round((float)IMUTelemetry.error, 2);
+
+    // PID controls the vTheta input to the wheel power equation.
+    vTheta = headingPID.getOutput(angles.firstAngle, desiredHeading );
 
     // Math out what to send to the motors and send it.
     PowerToWheels();
@@ -278,6 +285,7 @@ public class MecanumDriveChassis
     leftRearDrive.setPower(speeds.get(3));
   }
 
+
   private void testAngle(double desiredAngle)
   {
     // desired angle in degrees +/- 0 to 180 where CCW is + and CW is -
@@ -288,6 +296,8 @@ public class MecanumDriveChassis
     if(IMUTelemetry.error > Math.PI ) {IMUTelemetry.error -= Math.PI*2;}
     if(IMUTelemetry.error < -Math.PI ) {IMUTelemetry.error += Math.PI*2;}
   }
+
+
   private static float round(float d, int decimalPlace) {
     BigDecimal bd = new BigDecimal(Float.toString(d));
     bd = bd.setScale(decimalPlace, BigDecimal.ROUND_HALF_UP);
