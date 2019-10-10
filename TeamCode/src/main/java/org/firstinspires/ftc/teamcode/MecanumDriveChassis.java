@@ -57,8 +57,8 @@ public class MecanumDriveChassis
   private final double speedScale = 1.0;
 
   // PID for the heading
-  private final double propCoeff = 0.1;
-  private final double integCoeff = 0.00;
+  private final double propCoeff = 0.9;
+  private final double integCoeff = 0.001;
   private final double diffCoeff = 0.00;
   private final double OutputLowLimit = -1;
   private final double OutputHighLimit = 1;
@@ -67,10 +67,12 @@ public class MecanumDriveChassis
   private final double OutputFilter = 0.1;
   private final double SetpointRange = 3.1416;
 
-  private final double headdingThreshold = 0.2;
-
+  private final double headdingThreshold = 0.05;
+  private final int headdingAverageNumberOfSamples = 10;
+  
   private PID headingPID = null;
-
+  private RollingAverage averageHeadding = null;
+  
   MecanumDriveChassis(HardwareMap hardwareMap)
   {
     // Initialize the hardware variables. Note that the strings used here as parameters
@@ -148,6 +150,7 @@ public class MecanumDriveChassis
 
     // create and initialize the PID for the heading
     headingPID = new PID(propCoeff, integCoeff, diffCoeff);
+    averageHeadding = new RollingAverage(headdingAverageNumberOfSamples);
 
     // initially setup the PID parameters
     headingPID.setOutputLimits( OutputLowLimit, OutputHighLimit);
@@ -205,9 +208,12 @@ public class MecanumDriveChassis
     // current angle will put the desired head +/- 57 degrees from current.  This should be more
     // than enough to move the bot at max rotation speed.
     // The chasing of this setpoint is controled by the PID loop on the vTheta value.
-    if(Math.abs(rightStickX) > headdingThreshold)
+  
+  
+    averageHeadding.add(rightStickX);
+    if(Math.abs(averageHeadding.getAverage()) > headdingThreshold)
     {
-      desiredHeading = angles.firstAngle - rightStickX;
+      desiredHeading = angles.firstAngle - averageHeadding.getAverage();
     }
     testAngle(desiredHeading);
     //vTheta = round((float)IMUTelemetry.error, 2);
