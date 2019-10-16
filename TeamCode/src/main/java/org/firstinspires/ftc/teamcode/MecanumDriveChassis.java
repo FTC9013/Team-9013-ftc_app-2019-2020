@@ -45,12 +45,12 @@ public class MecanumDriveChassis
   // relative to the direction the bot is facing.
   private static double thetaD;
 
-  // Speed component for rotation about the Z axis
+  // Speed component for rotation about the Z axis. [-x, x]
   private static double vTheta;
 
-  //
-  private static double desiredHeading;  // rotates about the Z axis
-
+  // heading about a unit circle in radians.
+  private static double desiredHeading;  // rotates about the Z axis [0,2PI) rad.
+  private static double currentHeading;  // rotates about the Z axis [0,2PI) rad.
 
   // Robot speed scaling factor (% of joystick input to use)
   // applied uniformly across all joystick inputs to the JoystickToMotion() method.
@@ -146,10 +146,12 @@ public class MecanumDriveChassis
     angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS);
     desiredHeading = angles.firstAngle;
     // get the initial error and put valid data in the telemetry from the imu
-    testAngle(desiredHeading);
+    testAngle();
 
     // create and initialize the PID for the heading
     headingPID = new PID(propCoeff, integCoeff, diffCoeff);
+
+    // smooths out the joystick input so it doesn't slam hi/lo
     averageHeadding = new RollingAverage(headdingAverageNumberOfSamples);
 
     // initially setup the PID parameters
@@ -158,6 +160,8 @@ public class MecanumDriveChassis
     headingPID.setOutputRampRate(OutputRampRate);
     headingPID.setOutputFilter(OutputFilter);
     headingPID.setSetpointRange(SetpointRange);
+    headingPID.setContinousInputRange(360);
+    headingPID.setContinous(true);  // lets PID know we are working with a continuous range [0-360)
   }
 
   // Left  Y = forward, backward movement
@@ -172,6 +176,9 @@ public class MecanumDriveChassis
     // calculate the vectors multiply input values by scaling factor for max speed.
     joystickToMotion( driveLeftY * speedScale, driveLeftX * speedScale,
         driveRightX * speedScale  );
+
+    // Math out what to send to the motors and send it.
+    PowerToWheels();
   }
 
   /**
@@ -210,21 +217,23 @@ public class MecanumDriveChassis
     // The chasing of this setpoint is controled by the PID loop on the vTheta value.
   
   
-    averageHeadding.add(rightStickX);
+    averageHeadding.add(rightStickX);  // average in the current stick value
+
+    // if the averaged stick input is greater then the deadband go ahead and adjust the heading.
     if(Math.abs(averageHeadding.getAverage()) > headdingThreshold)
     {
-      desiredHeading = angles.firstAngle - averageHeadding.getAverage();
+      desiredHeading = currentHeading - averageHeadding.getAverage();
+      // keep heading a positive angle
+      if (desiredHeading < 0)
+      {
+        desiredHeading += (2 * Math.PI);
+      }
     }
-    testAngle(desiredHeading);
-    //vTheta = round((float)IMUTelemetry.error, 2);
+    // get the imu angles in the format we need.
+    testAngle();
 
     // PID controls the vTheta input to the wheel power equation.
-    vTheta = headingPID.getOutput(angles.firstAngle, desiredHeading );
-
-    // Math out what to send to the motors and send it.
-    PowerToWheels();
-
-//    vTheta = headingPID.getOutput(angles.firstAngle, desiredHeading );
+    vTheta = headingPID.getOutput(currentHeading, desiredHeading );
   }
 
   /**
@@ -292,15 +301,24 @@ public class MecanumDriveChassis
   }
 
 
-  private void testAngle(double desiredAngle)
+  // grab the imu heading and crunch out the values used for navigation and telemetry.
+  private void testAngle()
   {
     // desired angle in degrees +/- 0 to 180 where CCW is + and CW is -
     angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS);
 
-    IMUTelemetry.heading = angles.firstAngle;
-    IMUTelemetry.error = desiredAngle - angles.firstAngle;
-    if(IMUTelemetry.error > Math.PI ) {IMUTelemetry.error -= Math.PI*2;}
-    if(IMUTelemetry.error < -Math.PI ) {IMUTelemetry.error += Math.PI*2;}
+    // convert  imu angle range to our [0, 2PI) range
+    if (angles.firstAngle < 0 )
+    {
+      currentHeading = angles.firstAngle + 2 * Math.PI;
+    }
+    else
+    {
+      currentHeading = angles.firstAngle;
+    }
+
+    IMUTelemetry.heading = currentHeading;
+    IMUTelemetry.error = desiredHeading - currentHeading;
   }
 
 
