@@ -142,11 +142,11 @@ public class MecanumDriveChassis
       }
     }
 
-    // set initial desired heading to the current actual heading.
-    angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS);
-    desiredHeading = angles.firstAngle;
     // get the initial error and put valid data in the telemetry from the imu
     testAngle();
+
+    // set initial desired heading to the current actual heading.
+    desiredHeading = currentHeading;
 
     // create and initialize the PID for the heading
     headingPID = new PID(propCoeff, integCoeff, diffCoeff);
@@ -160,7 +160,7 @@ public class MecanumDriveChassis
     headingPID.setOutputRampRate(OutputRampRate);
     headingPID.setOutputFilter(OutputFilter);
     headingPID.setSetpointRange(SetpointRange);
-    headingPID.setContinousInputRange(360);
+    headingPID.setContinousInputRange(2*Math.PI);
     headingPID.setContinous(true);  // lets PID know we are working with a continuous range [0-360)
   }
 
