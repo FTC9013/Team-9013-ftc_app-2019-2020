@@ -51,21 +51,21 @@ public class MecanumDriveChassis
   // heading about a unit circle in radians.
   private static double desiredHeading;  // rotates about the Z axis [0,2PI) rad.
   private static double currentHeading;  // rotates about the Z axis [0,2PI) rad.
-
+  
   // Robot speed scaling factor (% of joystick input to use)
   // applied uniformly across all joystick inputs to the JoystickToMotion() method.
   private final double speedScale = 1.0;
 
   // PID for the heading
   private final double propCoeff = 0.9;
-  private final double integCoeff = 0.001;
+  private final double integCoeff = 0.0;
   private final double diffCoeff = 0.00;
   private final double OutputLowLimit = -1;
   private final double OutputHighLimit = 1;
-  private final double MaxIOutput = 0.3;
+  private final double MaxIOutput = 1;
   private final double OutputRampRate = 0.1;
-  private final double OutputFilter = 0.1;
-  private final double SetpointRange = 3.1416;
+  private final double OutputFilter = 0;
+  private final double SetpointRange = 2*Math.PI;
 
   private final double headdingThreshold = 0.05;
   private final int headdingAverageNumberOfSamples = 10;
@@ -141,15 +141,15 @@ public class MecanumDriveChassis
         e.printStackTrace();
       }
     }
+  
+    // create and initialize the PID for the heading
+    headingPID = new PID(propCoeff, integCoeff, diffCoeff);
 
     // get the initial error and put valid data in the telemetry from the imu
     testAngle();
 
     // set initial desired heading to the current actual heading.
     desiredHeading = currentHeading;
-
-    // create and initialize the PID for the heading
-    headingPID = new PID(propCoeff, integCoeff, diffCoeff);
 
     // smooths out the joystick input so it doesn't slam hi/lo
     averageHeadding = new RollingAverage(headdingAverageNumberOfSamples);
@@ -233,7 +233,7 @@ public class MecanumDriveChassis
     testAngle();
 
     // PID controls the vTheta input to the wheel power equation.
-    vTheta = headingPID.getOutput(currentHeading, desiredHeading );
+    // vTheta = headingPID.getOutput(currentHeading, desiredHeading );
   }
 
   /**
@@ -318,7 +318,7 @@ public class MecanumDriveChassis
     }
 
     IMUTelemetry.heading = currentHeading;
-    IMUTelemetry.error = desiredHeading - currentHeading;
+    IMUTelemetry.error = vTheta = headingPID.getOutput(currentHeading, desiredHeading );
   }
 
 
