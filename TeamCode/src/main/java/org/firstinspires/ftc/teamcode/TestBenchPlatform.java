@@ -3,16 +3,22 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class TestBenchPlatform
 {
-  private DcMotor leftFrontDrive = null;
-  private DcMotor leftRearDrive = null;
-  private DcMotor rightFrontDrive = null;
-  private DcMotor rightRearDrive = null;
-
+  private DcMotor gatherLeftMotor = null;
+  private DcMotor gatherRightMotor = null;
+  private DcMotor elevatorMotor = null;
+  private DcMotor extenderMotor = null;
+ 
+  private Servo latchLeftServo = null;
+  private Servo latchRightServo = null;
+  private Servo grabberServo = null;
+  private Servo grabberOrientationServo = null;
+  
   private RevBlinkinLedDriver ledServo;
   private LEDs  leds = null;
 
@@ -21,22 +27,92 @@ public class TestBenchPlatform
     // Initialize the hardware variables. Note that the strings used here as parameters
     // to 'get' must correspond to the names assigned during the robot configuration
     // step (using the FTC Robot Controller app on the phone).
-//    leftFrontDrive = hardwareMap.get(DcMotor.class, "lFront"); //hub 3 port 0
-//    leftRearDrive = hardwareMap.get(DcMotor.class, "lRear"); //hub 3 port 2
-//    rightFrontDrive = hardwareMap.get(DcMotor.class, "rFront"); //hub 3 port 1
-//    rightRearDrive = hardwareMap.get(DcMotor.class, "rRear"); //hub 3 port 3
 
     // Get blinkin LED controller (emulates a servo...)
     ledServo = hardwareMap.get(RevBlinkinLedDriver.class, "leds");
+  
+  
+    // Initialize the hardware variables. Note that the strings used here as parameters
+    // to 'get' must correspond to the names assigned during the robot configuration
+    // step (using the FTC Robot Controller app on the phone).
+//    elevatorMotor = hardwareMap.get(DcMotor.class, "eMotor");  //hub 2 port 0
+//
+//    elevatorMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//
+//    elevatorMotor.setDirection(DcMotor.Direction.FORWARD);
+//
+//    elevatorMotor.setPower(elevatorStop);
+//
+//    elevatorMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//
+//    elevatorMotor.setPower(elevatorRun);
+//
+//    elevatorMotor.setTargetPosition(lobbyFloor);
+//
+//    elevatorMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//
+//    gatherLeftMotor = hardwareMap.get(DcMotor.class, "gLMotor");
+//
+//    gatherLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//
+//    gatherLeftMotor.setPower(elevatorStop);
+//
+//    gatherLeftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//
+//    gatherLeftMotor.setPower(elevatorRun);
+//
+//    gatherLeftMotor.setTargetPosition(lobbyFloor);
+//
+//    gatherLeftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//
+//    gatherRightMotor = hardwareMap.get(DcMotor.class, "aRMotor");
+//
+//    gatherRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//
+//    gatherRightMotor.setPower(elevatorStop);
+//
+//    gatherRightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//
+//    gatherRightMotor.setPower(elevatorRun);
+//
+//    gatherRightMotor.setTargetPosition(lobbyFloor);
+//
+//    gatherRightMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//
+//    extenderMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//
+//    extenderMotor.setPower(elevatorStop);
+//
+//    extenderMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//
+//    extenderMotor.setPower(elevatorRun);
+//
+//    extenderMotor.setTargetPosition(lobbyFloor);
+//
+//    extenderMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//
+//
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
     // create the LED object
     leds = new LEDs(ledServo);
     
   }
 
-  // Left  Y = forward, backward movement
-  // Left  X = side to side (strafe)
-  // Right X = rotate in place
+
   void test(float driveLeftY, float driveLeftX, float driveRightX, Telemetry telemetry)
   {
  //   telemetry.addData("Heading (rad) ", " %.4f", IMUTelemetry.heading );
