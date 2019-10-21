@@ -2,6 +2,9 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 
+
+import static com.qualcomm.hardware.rev.RevBlinkinLedDriver.BlinkinPattern.*;
+
 public class LEDs {
 
   private final double TURN_HOTPINK = 0.57;
@@ -11,6 +14,7 @@ public class LEDs {
   private final double TURN_FIRE = -0.57;
   
   private RevBlinkinLedDriver blinkin;
+  private RevBlinkinLedDriver.BlinkinPattern pattern;
 
   LEDs(RevBlinkinLedDriver leds)
   {
@@ -36,8 +40,9 @@ public class LEDs {
   
   public void blinkpinkandwhite()
   {
+    pattern = LIGHT_CHASE_BLUE;
     // turn light blue
-    blinkin.setPattern(RevBlinkinLedDriver.BlinkinPattern.COLOR_WAVES_RAINBOW_PALETTE);
+    blinkin.setPattern(pattern);
 
   }
 //  public void blink (double color,int timer) {

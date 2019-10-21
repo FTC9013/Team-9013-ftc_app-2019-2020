@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@TeleOp(name="Primary Tele-Op", group="Linear Opmode")
+@TeleOp(name="TestBench", group="Linear Opmode")
 //@Disabled
 public class TestBench extends LinearOpMode {
 
