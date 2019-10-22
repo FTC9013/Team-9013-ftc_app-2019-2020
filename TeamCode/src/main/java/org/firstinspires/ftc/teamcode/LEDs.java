@@ -24,26 +24,26 @@ public class LEDs {
   }
 
 
-  public void goBlue()
+  public void goStrobe()
   {
-    pattern = LIGHT_CHASE_BLUE;
+    pattern = STROBE;
     blinkin.setPattern(pattern);
   }
 
-  public void goLava()
+  public void goConfetti()
   {
-    pattern = COLOR_WAVES_LAVA_PALETTE;
+    pattern = CONFETTI;
     blinkin.setPattern(pattern);
   }
 
-  public void goRed()
+  public void goShot()
   {
-    pattern = LIGHT_CHASE_RED;
+    pattern = SHOT;
     blinkin.setPattern(pattern);
   }
-  public void goBreathGray()
+  public void goHeartbeatBlue()
   {
-    pattern = BREATH_GRAY;
+    pattern = HEARTBEAT_BLUE;
     blinkin.setPattern(pattern);
   }
 }

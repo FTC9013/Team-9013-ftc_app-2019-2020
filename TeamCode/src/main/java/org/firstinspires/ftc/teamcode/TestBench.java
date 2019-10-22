@@ -41,12 +41,12 @@ public class TestBench extends LinearOpMode {
       if (gamepad1.x) {
         // send joystick inputs to the bench
         //testBench.elevatorPosition(100);
-        leds.goBreathGray();
+        leds.goHeartbeatBlue();
       }
       if (gamepad1.y) {
         // send joystick inputs to the bench
         //testBench.elevatorPosition(0);
-        leds.goLava();
+        leds.goConfetti();
       }
 
       if (gamepad1.right_bumper) {
@@ -61,12 +61,12 @@ public class TestBench extends LinearOpMode {
 
       if (gamepad1.a) {
         // send joystick inputs to the leds
-        leds.goRed();
+        leds.goShot();
       }
 
       if (gamepad1.b) {
         // send joystick inputs to the leds
-        leds.goBlue();
+        leds.goStrobe();
       }
 
 
