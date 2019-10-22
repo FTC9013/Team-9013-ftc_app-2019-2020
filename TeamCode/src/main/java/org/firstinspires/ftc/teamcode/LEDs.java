@@ -24,6 +24,8 @@ public class LEDs {
   }
 
 
+  // you can make other methods here.
+
   public void goBlue()
   {
     pattern = LIGHT_CHASE_BLUE;
@@ -36,4 +38,7 @@ public class LEDs {
     pattern = LIGHT_CHASE_RED;
     blinkin.setPattern(pattern);
   }
+
+
+
 }
