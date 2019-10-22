@@ -41,9 +41,9 @@ public class LEDs {
     pattern = LIGHT_CHASE_RED;
     blinkin.setPattern(pattern);
   }
-  public void goPink()
+  public void goBreathGray()
   {
-    pattern = HOT_PINK;
+    pattern = BREATH_GRAY;
     blinkin.setPattern(pattern);
   }
 }
