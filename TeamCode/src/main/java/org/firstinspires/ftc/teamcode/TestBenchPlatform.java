@@ -19,38 +19,27 @@ public class TestBenchPlatform
   private Servo grabberServo = null;
   private Servo grabberOrientationServo = null;
   
-  private RevBlinkinLedDriver ledServo;
-  private LEDs  leds = null;
-
   TestBenchPlatform(HardwareMap hardwareMap)
   {
     // Initialize the hardware variables. Note that the strings used here as parameters
     // to 'get' must correspond to the names assigned during the robot configuration
     // step (using the FTC Robot Controller app on the phone).
 
-    // Get blinkin LED controller (emulates a servo...)
-    ledServo = hardwareMap.get(RevBlinkinLedDriver.class, "leds");
-  
-  
+    latchLeftServo = hardwareMap.get(Servo.class, "lLServo");
+
+
     // Initialize the hardware variables. Note that the strings used here as parameters
     // to 'get' must correspond to the names assigned during the robot configuration
     // step (using the FTC Robot Controller app on the phone).
-//    elevatorMotor = hardwareMap.get(DcMotor.class, "eMotor");  //hub 2 port 0
-//
-//    elevatorMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-//
-//    elevatorMotor.setDirection(DcMotor.Direction.FORWARD);
-//
-//    elevatorMotor.setPower(elevatorStop);
-//
-//    elevatorMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//
-//    elevatorMotor.setPower(elevatorRun);
-//
-//    elevatorMotor.setTargetPosition(lobbyFloor);
-//
-//    elevatorMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-//
+
+    elevatorMotor = hardwareMap.get(DcMotor.class, "eMotor");  //hub 2 port 0
+    elevatorMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+    elevatorMotor.setPower(0);
+    elevatorMotor.setDirection(DcMotor.Direction.FORWARD);
+    elevatorMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    elevatorMotor.setTargetPosition(0);
+    elevatorMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
 //    gatherLeftMotor = hardwareMap.get(DcMotor.class, "gLMotor");
 //
 //    gatherLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -90,25 +79,11 @@ public class TestBenchPlatform
 //    extenderMotor.setTargetPosition(lobbyFloor);
 //
 //    extenderMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-//
-//
+
+
     
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    // create the LED object
-    leds = new LEDs(ledServo);
+
     
   }
 
@@ -119,16 +94,17 @@ public class TestBenchPlatform
  //   telemetry.addData("Error (rad) ", " %.4f",IMUTelemetry.error );
     telemetry.update();
 
-
-
-    
-
-
   }
 
-  // grab the imu heading and crunch out the values used for navigation and telemetry.
-  private void testAngle()
+  void elevatorPosition(int count)
   {
-  
+    elevatorMotor.setPower(1);
+    elevatorMotor.setTargetPosition(count);
+  }
+
+
+  void latchPosition(int count)
+  {
+    latchLeftServo.setPosition(count);
   }
 }
