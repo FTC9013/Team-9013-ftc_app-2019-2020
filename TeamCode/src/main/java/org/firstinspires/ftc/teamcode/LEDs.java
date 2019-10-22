@@ -1,60 +1,39 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
+import com.qualcomm.robotcore.hardware.HardwareMap;
+
 
 
 import static com.qualcomm.hardware.rev.RevBlinkinLedDriver.BlinkinPattern.*;
 
 public class LEDs {
 
-  private final double TURN_HOTPINK = 0.57;
-  private final double TURN_WHITE = -0.81;
-  private final double TURN_BLUE = 0.87;
-  private final double TURN_BLACK = 0.99;
-  private final double TURN_FIRE = -0.57;
-  
   private RevBlinkinLedDriver blinkin;
   private RevBlinkinLedDriver.BlinkinPattern pattern;
 
-  LEDs(RevBlinkinLedDriver leds)
+
+  LEDs(HardwareMap hardwareMap)
   {
-    this.blinkin = leds;
-    blinkpinkandwhite();
+    // Initialize the hardware variables. Note that the strings used here as parameters
+    // to 'get' must correspond to the names assigned during the robot configuration
+    // step (using the FTC Robot Controller app on the phone).
+
+    // Get blinkin LED controller (emulates a servo...)
+    blinkin = hardwareMap.get(RevBlinkinLedDriver.class, "leds");
   }
 
 
-
-    // Set Blinkin pattern.
-
-//  public void blinkBlackandBlue() {
-//    // turn light blue
-//    blinkin.setPattern(TURN_BLACK);
-//    //wait 0.5 seconds.
-//    //pause(500);
-//    // Turn light white
-//    blinkin.setPosition(TURN_BLUE);
-//    // wait 0.5 seconds
-//    //pause(500);
-//  }
-  
-  
-  public void blinkpinkandwhite()
+  public void goBlue()
   {
     pattern = LIGHT_CHASE_BLUE;
-    // turn light blue
     blinkin.setPattern(pattern);
-
   }
-//  public void blink (double color,int timer) {
-//    blinkin.setPosition(color);
-//    // wait x seconds
-   // pause(timer);
 
- //   public void blink ( double TURN_WHITE, int pause ) {
-   //   blinkin.setPosition(-0.81);
-      // wait so and so seconds
-      //pause (500);
 
-//    }
-//  }
+  public void goRed()
+  {
+    pattern = LIGHT_CHASE_RED;
+    blinkin.setPattern(pattern);
+  }
 }

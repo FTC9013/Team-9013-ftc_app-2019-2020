@@ -9,7 +9,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Arrays;
 import com.qualcomm.hardware.bosch.BNO055IMU;
-import com.qualcomm.robotcore.hardware.PWMOutputImpl;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -67,11 +66,11 @@ public class MecanumDriveChassis
   private final double OutputFilter = 0;
   private final double SetpointRange = 2*Math.PI;
 
-  private final double headdingThreshold = 0.05;
+  private final double headingThreshold = 0.05;
   private final int headdingAverageNumberOfSamples = 10;
   
   private PID headingPID = null;
-  private RollingAverage averageHeadding = null;
+  private RollingAverage averageHeading = null;
   
   MecanumDriveChassis(HardwareMap hardwareMap)
   {
@@ -152,7 +151,7 @@ public class MecanumDriveChassis
     desiredHeading = currentHeading;
 
     // smooths out the joystick input so it doesn't slam hi/lo
-    averageHeadding = new RollingAverage(headdingAverageNumberOfSamples);
+    averageHeading = new RollingAverage(headdingAverageNumberOfSamples);
 
     // initially setup the PID parameters
     headingPID.setOutputLimits( OutputLowLimit, OutputHighLimit);
@@ -217,12 +216,14 @@ public class MecanumDriveChassis
     // The chasing of this setpoint is controled by the PID loop on the vTheta value.
   
   
-    averageHeadding.add(rightStickX);  // average in the current stick value
+    averageHeading.add(rightStickX);  // average in the current stick value
 
-    // if the averaged stick input is greater then the deadband go ahead and adjust the heading.
-    if(Math.abs(averageHeadding.getAverage()) > headdingThreshold)
+    // if the averaged stick input is greater then the headingThreshold go ahead and adjust the heading.
+    // This keeps from updating the desiredHeading value if no joystick input is being made.
+    // Otherwise, it will always drive the desiredHeading to 0 (neutral joystick position)
+    if(Math.abs(averageHeading.getAverage()) > headingThreshold)
     {
-      desiredHeading = currentHeading - averageHeadding.getAverage();
+      desiredHeading = currentHeading - averageHeading.getAverage();
       // keep heading a positive angle
       if (desiredHeading < 0)
       {
