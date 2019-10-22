@@ -30,10 +30,20 @@ public class LEDs {
     blinkin.setPattern(pattern);
   }
 
+  public void goLava()
+  {
+    pattern = COLOR_WAVES_LAVA_PALETTE;
+    blinkin.setPattern(pattern);
+  }
 
   public void goRed()
   {
     pattern = LIGHT_CHASE_RED;
+    blinkin.setPattern(pattern);
+  }
+  public void goPink()
+  {
+    pattern = HOT_PINK;
     blinkin.setPattern(pattern);
   }
 }
