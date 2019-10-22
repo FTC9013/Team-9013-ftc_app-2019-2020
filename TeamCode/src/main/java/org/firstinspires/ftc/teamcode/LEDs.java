@@ -26,7 +26,7 @@ public class LEDs {
 
   public void goStrobe()
   {
-    pattern = STROBE;
+    pattern = RAINBOW_WITH_GLITTER;
     blinkin.setPattern(pattern);
   }
 
@@ -36,14 +36,14 @@ public class LEDs {
     blinkin.setPattern(pattern);
   }
 
-  public void goShot()
+  public void goLarson()
   {
-    pattern = SHOT;
+    pattern = LARSON_SCANNER_RED;
     blinkin.setPattern(pattern);
   }
-  public void goHeartbeatBlue()
+  public void goFireLarge()
   {
-    pattern = HEARTBEAT_BLUE;
+    pattern = FIRE_LARGE;
     blinkin.setPattern(pattern);
   }
 }
