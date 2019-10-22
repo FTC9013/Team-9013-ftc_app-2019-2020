@@ -61,7 +61,7 @@ public class TestBench extends LinearOpMode {
 
       if (gamepad1.a) {
         // send joystick inputs to the leds
-        leds.goLarson();
+        leds.goOcean();
       }
 
       if (gamepad1.b) {

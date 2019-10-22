@@ -36,9 +36,9 @@ public class LEDs {
     blinkin.setPattern(pattern);
   }
 
-  public void goLarson()
+  public void goOcean()
   {
-    pattern = LARSON_SCANNER_RED;
+    pattern = SINELON_OCEAN_PALETTE;
     blinkin.setPattern(pattern);
   }
   public void goFireLarge()
