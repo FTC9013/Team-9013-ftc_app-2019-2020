@@ -3,11 +3,12 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+
+import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
 import java.util.Arrays;
 import com.qualcomm.hardware.bosch.BNO055IMU;
-import com.qualcomm.robotcore.hardware.PWMOutputImpl;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -43,32 +44,34 @@ public class MecanumDriveChassis
   // relative to the direction the bot is facing.
   private static double thetaD;
 
-  // Speed component for rotation about the Z axis
+  // Speed component for rotation about the Z axis. [-x, x]
   private static double vTheta;
 
-  //
-  private static double desiredHeading;  // rotates about the Z axis
-
-
+  // heading about a unit circle in radians.
+  private static double desiredHeading;  // rotates about the Z axis [0,2PI) rad.
+  private static double currentHeading;  // rotates about the Z axis [0,2PI) rad.
+  
   // Robot speed scaling factor (% of joystick input to use)
   // applied uniformly across all joystick inputs to the JoystickToMotion() method.
   private final double speedScale = 1.0;
 
   // PID for the heading
-  private final double propCoeff = 0.0;
-  private final double integCoeff = 0.01;
-  private final double diffCoeff = 0.05;
+  private final double propCoeff = 0.9;
+  private final double integCoeff = 0.0;
+  private final double diffCoeff = 0.00;
   private final double OutputLowLimit = -1;
   private final double OutputHighLimit = 1;
-  private final double MaxIOutput = 0.5;
+  private final double MaxIOutput = 1;
   private final double OutputRampRate = 0.1;
-  private final double OutputFilter = 0.1;
-  private final double SetpointRange = 1;
+  private final double OutputFilter = 0;
+  private final double SetpointRange = 2*Math.PI;
 
-  private final double headdingThreshold = 0.1;
-
+  private final double headingThreshold = 0.05;
+  private final int headdingAverageNumberOfSamples = 10;
+  
   private PID headingPID = null;
-
+  private RollingAverage averageHeading = null;
+  
   MecanumDriveChassis(HardwareMap hardwareMap)
   {
     // Initialize the hardware variables. Note that the strings used here as parameters
@@ -137,22 +140,27 @@ public class MecanumDriveChassis
         e.printStackTrace();
       }
     }
+  
+    // create and initialize the PID for the heading
+    headingPID = new PID(propCoeff, integCoeff, diffCoeff);
+
+    // get the initial error and put valid data in the telemetry from the imu
+    testAngle();
 
     // set initial desired heading to the current actual heading.
-    angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS);
-    desiredHeading = angles.firstAngle;
-    // get the initial error and put valid data in the telemetry from the imu
-    testAngle(desiredHeading);
+    desiredHeading = currentHeading;
 
-    // create and initialize the PID for the heading
-//    headingPID = new PID(propCoeff, integCoeff, diffCoeff);
+    // smooths out the joystick input so it doesn't slam hi/lo
+    averageHeading = new RollingAverage(headdingAverageNumberOfSamples);
 
     // initially setup the PID parameters
-//    headingPID.setOutputLimits( OutputLowLimit, OutputHighLimit);
-//    headingPID.setMaxIOutput(MaxIOutput);
-//    headingPID.setOutputRampRate(OutputRampRate);
-//    headingPID.setOutputFilter(OutputFilter);
-//    headingPID.setSetpointRange(SetpointRange);
+    headingPID.setOutputLimits( OutputLowLimit, OutputHighLimit);
+    headingPID.setMaxIOutput(MaxIOutput);
+    headingPID.setOutputRampRate(OutputRampRate);
+    headingPID.setOutputFilter(OutputFilter);
+    headingPID.setSetpointRange(SetpointRange);
+    headingPID.setContinousInputRange(2*Math.PI);
+    headingPID.setContinous(true);  // lets PID know we are working with a continuous range [0-360)
   }
 
   // Left  Y = forward, backward movement
@@ -167,6 +175,9 @@ public class MecanumDriveChassis
     // calculate the vectors multiply input values by scaling factor for max speed.
     joystickToMotion( driveLeftY * speedScale, driveLeftX * speedScale,
         driveRightX * speedScale  );
+
+    // Math out what to send to the motors and send it.
+    PowerToWheels();
   }
 
   /**
@@ -199,17 +210,31 @@ public class MecanumDriveChassis
 
     // if there is new joystick input update the heading otherwise hold the current heading as
     // the setpoint.
-    if(Math.abs(rightStickX) > headdingThreshold)
+    // headding is in radians so just using the +/- 1 from the joystick to add as a bias to the
+    // current angle will put the desired head +/- 57 degrees from current.  This should be more
+    // than enough to move the bot at max rotation speed.
+    // The chasing of this setpoint is controled by the PID loop on the vTheta value.
+  
+  
+    averageHeading.add(rightStickX);  // average in the current stick value
+
+    // if the averaged stick input is greater then the headingThreshold go ahead and adjust the heading.
+    // This keeps from updating the desiredHeading value if no joystick input is being made.
+    // Otherwise, it will always drive the desiredHeading to 0 (neutral joystick position)
+    if(Math.abs(averageHeading.getAverage()) > headingThreshold)
     {
-      desiredHeading = angles.firstAngle - rightStickX;
+      desiredHeading = currentHeading - averageHeading.getAverage();
+      // keep heading a positive angle
+      if (desiredHeading < 0)
+      {
+        desiredHeading += (2 * Math.PI);
+      }
     }
-    testAngle(desiredHeading);
-    vTheta = IMUTelemetry.error;
+    // get the imu angles in the format we need.
+    testAngle();
 
-    // Math out what to send to the motors and send it.
-    PowerToWheels();
-
-//    vTheta = headingPID.getOutput(angles.firstAngle, desiredHeading );
+    // PID controls the vTheta input to the wheel power equation.
+    // vTheta = headingPID.getOutput(currentHeading, desiredHeading );
   }
 
   /**
@@ -276,14 +301,31 @@ public class MecanumDriveChassis
     leftRearDrive.setPower(speeds.get(3));
   }
 
-  private void testAngle(double desiredAngle)
+
+  // grab the imu heading and crunch out the values used for navigation and telemetry.
+  private void testAngle()
   {
     // desired angle in degrees +/- 0 to 180 where CCW is + and CW is -
     angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS);
 
-    IMUTelemetry.heading = angles.firstAngle;
-    IMUTelemetry.error = desiredAngle - angles.firstAngle;
-    if(IMUTelemetry.error > Math.PI ) {IMUTelemetry.error -= Math.PI*2;}
-    if(IMUTelemetry.error < -Math.PI ) {IMUTelemetry.error += Math.PI*2;}
+    // convert  imu angle range to our [0, 2PI) range
+    if (angles.firstAngle < 0 )
+    {
+      currentHeading = angles.firstAngle + 2 * Math.PI;
+    }
+    else
+    {
+      currentHeading = angles.firstAngle;
+    }
+
+    IMUTelemetry.heading = currentHeading;
+    IMUTelemetry.error = vTheta = headingPID.getOutput(currentHeading, desiredHeading );
+  }
+
+
+  private static float round(float d, int decimalPlace) {
+    BigDecimal bd = new BigDecimal(Float.toString(d));
+    bd = bd.setScale(decimalPlace, BigDecimal.ROUND_HALF_UP);
+    return bd.floatValue();
   }
 }
