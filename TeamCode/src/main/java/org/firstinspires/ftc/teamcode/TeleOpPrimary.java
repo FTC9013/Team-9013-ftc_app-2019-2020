@@ -6,7 +6,6 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 
-
 /*
 Motor Names for Configuration
 
@@ -38,9 +37,6 @@ public class TeleOpPrimary extends LinearOpMode {
     telemetry.update();
 
     driveChassis = new MecanumDriveChassis(hardwareMap);
-
-    // set deadzone to minimize unwanted stick input.
-    gamepad1.setJoystickDeadzone((float)0.05);
 
     // Wait for the game to start (driver presses PLAY)
     waitForStart();
