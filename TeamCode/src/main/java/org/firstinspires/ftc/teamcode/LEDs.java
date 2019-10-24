@@ -23,6 +23,11 @@ public class LEDs {
     blinkin = hardwareMap.get(RevBlinkinLedDriver.class, "leds");
   }
 
+  public void goOff()
+  {
+    pattern = BLACK;
+    blinkin.setPattern(pattern);
+  }
 
   public void goStrobe()
   {
