@@ -12,7 +12,7 @@ import java.util.logging.Level;
 public class TestBench extends LinearOpMode {
 
   // Declare OpMode members.
-  private TestBenchPlatform testBench;
+  private ManipulatorPlatform testBench;
   private LEDs leds;
 
   private ElapsedTime runtime = new ElapsedTime();
@@ -22,7 +22,7 @@ public class TestBench extends LinearOpMode {
     telemetry.addData("Status", "Initialized");
     telemetry.update();
 
-    testBench = new TestBenchPlatform(hardwareMap);
+    testBench = new ManipulatorPlatform(hardwareMap);
     leds = new LEDs(hardwareMap);
 
     // Wait for the game to start (driver presses PLAY)
@@ -51,11 +51,11 @@ public class TestBench extends LinearOpMode {
 
       if (gamepad1.right_bumper) {
         // send joystick inputs to the bench
-        testBench.latchPosition(1);
+        testBench.latchPosition(true);
       }
       if (gamepad1.left_bumper) {
         // send joystick inputs to the bench
-        testBench.latchPosition(0);
+        testBench.latchPosition(false);
       }
 
 
@@ -68,13 +68,6 @@ public class TestBench extends LinearOpMode {
         // send joystick inputs to the leds
         leds.goFireLarge();
       }
-
-
-
-
-
-
-
     }
   }
 }
