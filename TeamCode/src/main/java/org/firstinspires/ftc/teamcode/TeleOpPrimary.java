@@ -42,7 +42,7 @@ public class TeleOpPrimary extends LinearOpMode {
     driveChassis = new MecanumDriveChassis(hardwareMap);
     manipulatorPlatform = new ManipulatorPlatform(hardwareMap);
     leds = new LEDs(hardwareMap);
-
+    leds.goOff();
 
     // set deadzone to minimize unwanted stick input.
     gamepad1.setJoystickDeadzone((float)0.05);
@@ -117,12 +117,12 @@ public class TeleOpPrimary extends LinearOpMode {
       }
 
 
-      if (gamepad1.y)
+      if (gamepad2.y)
       {
         manipulatorPlatform.elevatorPosition(200);
       }
 
-      if (gamepad1.a)
+      if (gamepad2.a)
       {
         manipulatorPlatform.elevatorPosition(0);
       }
