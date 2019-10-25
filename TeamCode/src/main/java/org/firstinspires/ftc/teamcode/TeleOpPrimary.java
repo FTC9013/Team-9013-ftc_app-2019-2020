@@ -106,12 +106,12 @@ public class TeleOpPrimary extends LinearOpMode {
         manipulatorPlatform.grab(false);
       }
 
-      if (gamepad1.x)   // Extend
+      if (gamepad2.x)   // Extend
       {
         manipulatorPlatform.extenderPosition(200);
       }
 
-      if (gamepad1.b)   // retract
+      if (gamepad2.b)   // retract
       {
         manipulatorPlatform.extenderPosition(0);
       }

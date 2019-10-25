@@ -70,11 +70,13 @@ public class ManipulatorPlatform
 
   }
 
+
   void gatherOn()
   {
     gatherLeftMotor.setVelocity(2 * Math.PI, RADIANS); // radians/second
     gatherRightMotor.setVelocity(2 * Math.PI, RADIANS);
   }
+
 
   void gatherOff()
   {
@@ -109,6 +111,7 @@ public class ManipulatorPlatform
       latchLeftServo.setPosition(1);
     }
   }
+
 
   void grab(boolean position)
   {
