@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode;
 
-
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
@@ -20,6 +19,13 @@ import static java.lang.Thread.sleep;
 
 public class MecanumDriveChassis
 {
+  /*
+  Motor Names for Configuration
+  0 = lFront (NeveRest 40 Gearmotor)
+  1 = rFront (NeveRest 40 Gearmotor)
+  2 = lRear (NeveRest 40 Gearmotor)
+  3 = rRear (NeveRest 40 Gearmotor)
+  */
   private DcMotor leftFrontDrive = null;
   private DcMotor leftRearDrive = null;
   private DcMotor rightFrontDrive = null;

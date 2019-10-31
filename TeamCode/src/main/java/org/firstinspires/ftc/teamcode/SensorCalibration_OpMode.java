@@ -4,6 +4,7 @@ import com.qualcomm.hardware.adafruit.AdafruitBNO055IMU;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ReadWriteFile;
 
@@ -28,12 +29,46 @@ import java.util.Locale;
  * results persistently, then loading them again at each run can help reduce the time that automatic
  * calibration requires.</p>
  *
- * <p>This summary of the calibration process, from <a href="http://iotdk.intel.com/docs/master/upm/classupm_1_1_b_n_o055.html">
+ * <p>This summary of the calibration process, from
+ * <a href="http://iotdk.intel.com/docs/master/upm/classupm_1_1_b_n_o055.html">
  * Intel</a>, is informative:</p>
  *
  * <p>"This device requires calibration in order to operate accurately. [...] Calibration data is
  * lost on a power cycle. See one of the examples for a description of how to calibrate the device,
  * but in essence:</p>
+ *
+ * This sensor handles the hard problem of combining various sensor information into a reliable
+ * measurement of sensor orientation (refered to as 'sensor fusion'). The onboard MCU runs this
+ * software and can provide fusion output in the form of Euler Angles, Quaternions, Linear
+ * Acceleration, and Gravity Vectors in 3 axes.
+ *
+ * The focus on this driver has been on supporting the fusion components.
+ * Less support is available for use of this device as a generic accelerometer, gyroscope and
+ * magnetometer, however enough infrastructure is available to add any missing functionality.
+ *
+ * This device requires calibration in order to operate accurately. Methods are
+ * provided to retrieve calibration data (once calibrated) to be stored somewhere else, like in a
+ * file. A method is provided to load this data as well. Calibration data is lost on a power cycle.
+ * See one of the examples for a description of how to calibrate the device, but in essence:
+ *
+ * There is a calibration status register available (getCalibrationStatus()) that returns the
+ * calibration status of the accelerometer (ACC), magnetometer (MAG), gyroscope (GYR), and overall
+ * system (SYS). Each of these values range from 0 (uncalibrated) to 3 (fully calibrated).
+ * Calibration involves certain motions to get all 4 values at 3. The motions are as follows
+ * (though see the datasheet for more information):
+ *
+ * GYR: Simply let the sensor sit flat for a few seconds.
+ *
+ * ACC: Move the sensor in various positions. Start flat, then rotate slowly by 45 degrees, hold
+ * for a few seconds, then continue rotating another 45 degrees and hold, etc. 6 or more movements
+ * of this type may be required. You can move through any axis you desire, but make sure that the
+ * device is lying at least once perpendicular to the x, y, and z axis.
+ *
+ * MAG: Move slowly in a figure 8 pattern in the air, until the calibration values reaches 3.
+ *
+ * SYS: This will usually reach 3 when the other items have also reached 3. If not, continue slowly
+ * moving the device though various axes until it does.
+ *
  *
  * <p>There is a calibration status register available [...] that returns the calibration status
  * of the accelerometer (ACC), magnetometer (MAG), gyroscope (GYR), and overall system (SYS).
@@ -48,7 +83,8 @@ import java.util.Locale;
  *              hold, etc. 6 or more movements of this type may be required. You can move through
  *              any axis you desire, but make sure that the device is lying at least once
  *              perpendicular to the x, y, and z axis.</ol>
- *     <ol>MAG: Move slowly in a figure 8 pattern in the air, until the calibration values reaches 3.</ol>
+ *     <ol>MAG: Move slowly in a figure 8 pattern in the air, until the calibration values
+ *              reaches 3.</ol>
  *     <ol>SYS: This will usually reach 3 when the other items have also reached 3. If not, continue
  *              slowly moving the device though various axes until it does."</ol>
  * </li>
@@ -64,14 +100,15 @@ import java.util.Locale;
  * it appears that in a SensorMode that doesn't use the magnetometer (for example), the
  * magnetometer cannot actually be calibrated.</p>
  *
- * @see AdafruitBNO055IMU
+ * @see BNO055IMU
  * @see BNO055IMU.Parameters#calibrationDataFile
- * @see <a href="https://www.bosch-sensortec.com/bst/products/all_products/bno055">BNO055 product page</a>
+ * @see <a href="https://www.bosch-sensortec.com/bst/products/all_products/bno055">BNO055 product
+ *      page</a>
  * @see <a href="https://ae-bst.resource.bosch.com/media/_tech/media/datasheets/BST_BNO055_DS000_14.pdf">BNO055 specification</a>
  */
 @TeleOp(name = "IMU SensorCalibration", group = "Sensor")
-@Disabled
-public class SensorCalibration_OpMode extends LinearOpMode
+//@Disabled
+public class SensorCalibration_OpMode extends OpMode
 {
   //----------------------------------------------------------------------------------------------
   // State
@@ -87,66 +124,72 @@ public class SensorCalibration_OpMode extends LinearOpMode
   // Main logic
   //----------------------------------------------------------------------------------------------
 
-  @Override public void runOpMode() {
+  @Override
+  public void init() {
 
     telemetry.log().setCapacity(12);
     telemetry.log().add("");
     telemetry.log().add("Please refer to the calibration instructions");
-    telemetry.log().add("contained in the Adafruit IMU calibration");
-    telemetry.log().add("sample opmode.");
     telemetry.log().add("");
     telemetry.log().add("When sufficient calibration has been reached,");
-    telemetry.log().add("press the 'A' button to write the current");
+    telemetry.log().add("press the Stop button to write the current");
     telemetry.log().add("calibration data to a file.");
     telemetry.log().add("");
 
     // We are expecting the IMU to be attached to an I2C port on a Core Device Interface Module and named "imu".
     BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
     parameters.loggingEnabled = true;
-    parameters.loggingTag     = "IMU";
+    parameters.loggingTag = "IMU";
     imu = hardwareMap.get(BNO055IMU.class, "imu");
     imu.initialize(parameters);
 
     composeTelemetry();
     telemetry.log().add("Waiting for start...");
 
-    // Wait until we're told to go
-    while (!isStarted()) {
-      telemetry.update();
-      idle();
-    }
+    telemetry.update();
 
-    telemetry.log().add("...started...");
-
-    while (opModeIsActive()) {
-
-      if (gamepad1.a) {
-
-        // Get the calibration data
-        BNO055IMU.CalibrationData calibrationData = imu.readCalibrationData();
-
-        // Save the calibration data to a file. You can choose whatever file
-        // name you wish here, but you'll want to indicate the same file name
-        // when you initialize the IMU in an opmode in which it is used. If you
-        // have more than one IMU on your robot, you'll of course want to use
-        // different configuration file names for each.
-        String filename = "AdafruitIMUCalibration.json";
-        File file = AppUtil.getInstance().getSettingsFile(filename);
-        ReadWriteFile.writeFile(file, calibrationData.serialize());
-        telemetry.log().add("saved to '%s'", filename);
-
-        // Wait for the button to be released
-        while (gamepad1.a) {
-          telemetry.update();
-          idle();
-        }
-      }
-
-      telemetry.update();
-    }
   }
 
-  void composeTelemetry() {
+  @Override
+  public void init_loop()
+  {
+    telemetry.update();
+    Thread.yield();
+  }
+
+  @Override
+  public void start()
+  {
+    telemetry.log().add("...started...");
+  }
+
+  @Override
+  public void loop()
+  {
+    telemetry.update();
+  }
+
+  @Override
+  public void stop()
+  {
+    // Get the calibration data
+    BNO055IMU.CalibrationData calibrationData = imu.readCalibrationData();
+
+    // Save the calibration data to a file. You can choose whatever file
+    // name you wish here, but you'll want to indicate the same file name
+    // when you initialize the IMU in an opmode in which it is used. If you
+    // have more than one IMU on your robot, you'll of course want to use
+    // different configuration file names for each.
+    String filename = "IMUCalibration.json";
+    File file = AppUtil.getInstance().getSettingsFile(filename);
+    ReadWriteFile.writeFile(file, calibrationData.serialize());
+    telemetry.log().add("saved to '%s'", filename);
+
+    telemetry.update();
+  }
+
+  void composeTelemetry()
+  {
 
     // At the beginning of each telemetry update, grab a bunch of data
     // from the IMU that we will then display in separate lines.

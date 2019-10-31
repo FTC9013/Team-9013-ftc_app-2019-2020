@@ -1,27 +1,8 @@
 package org.firstinspires.ftc.teamcode;
 
-
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
-
-
-
-/*
-Motor Names for Configuration
-
-Hub 2:
-0 = eMotor (rev robotics 40:1 HD Hex)
-1 = aMotor (rev robotics 40:1 HD Hex)
-0 = cServo
-
-Hub 3:
-
-0 = lFront (NeveRest 40 Gearmotor)
-1 = rFront (NeveRest 40 Gearmotor)
-2 = lRear (NeveRest 40 Gearmotor)
-3 = rRear (NeveRest 40 Gearmotor)
-*/
 
 @TeleOp(name="Primary Tele-Op", group="Linear Opmode")
 //@Disabled
@@ -61,7 +42,6 @@ public class TeleOpPrimary extends LinearOpMode {
                          gamepad1.right_stick_x, telemetry);
 
     // Driver controls (game pad 1)
-
       if (gamepad1.x)
       {
         manipulatorPlatform.gatherOn();
@@ -73,18 +53,18 @@ public class TeleOpPrimary extends LinearOpMode {
       }
 
 
-      if (gamepad1.a)
+      if (gamepad1.a) // Latch
       {
         manipulatorPlatform.latchPosition(true);
       }
 
-      if (gamepad1.b)
+      if (gamepad1.b)  // Unlatch
       {
         manipulatorPlatform.latchPosition(false);
       }
 
-      // Second seat...  controls (game pad 2)
 
+      // Second seat...  controls (game pad 2)
       if (gamepad2.right_bumper)  // grab
       {
         manipulatorPlatform.grab(true);
@@ -105,6 +85,7 @@ public class TeleOpPrimary extends LinearOpMode {
         // send joystick inputs to the bench
         manipulatorPlatform.grab(false);
       }
+
 
       if (gamepad2.x)   // Extend
       {
