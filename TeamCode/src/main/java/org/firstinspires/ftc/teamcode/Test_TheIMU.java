@@ -49,7 +49,7 @@ public class Test_TheIMU extends LinearOpMode
     parameters.calibrationDataFile = "IMUCalibration.json"; // see the calibration sample opmode
     parameters.loggingEnabled      = false;
     parameters.loggingTag          = "IMU";
-    parameters.accelerationIntegrationAlgorithm = new NaiveAccelerationIntegrator();
+    parameters.accelerationIntegrationAlgorithm = new AccelerationIntegrator9013();
 
     // Retrieve and initialize the IMU. We expect the IMU to be attached to an I2C port
     // on a Core Device Interface Module, configured to be a sensor of type "AdaFruit IMU",
@@ -64,7 +64,7 @@ public class Test_TheIMU extends LinearOpMode
     waitForStart();
 
     // Start the logging of measured acceleration
-    imu.startAccelerationIntegration(new Position(), new Velocity(), 1000);
+    imu.startAccelerationIntegration(new Position(), new Velocity(), 50);
 
     // Loop and update the dashboard
     while (opModeIsActive()) {
@@ -131,6 +131,12 @@ public class Test_TheIMU extends LinearOpMode
                 Math.sqrt(gravity.xAccel*gravity.xAccel
                     + gravity.yAccel*gravity.yAccel
                     + gravity.zAccel*gravity.zAccel));
+          }
+        });
+    telemetry.addLine()
+        .addData("pos.", new Func<String>() {
+          @Override public String value() {
+            return position.toString();
           }
         });
   }
