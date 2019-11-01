@@ -18,6 +18,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
 
 import java.util.Locale;
 
+import static java.lang.Thread.sleep;
+
 @TeleOp(name = "Test_TheIMU", group = "Sensor")
 //@Disabled                            // Comment this out to add to the opmode list
 public class Test_TheIMU extends LinearOpMode
@@ -55,7 +57,15 @@ public class Test_TheIMU extends LinearOpMode
     // on a Core Device Interface Module, configured to be a sensor of type "AdaFruit IMU",
     // and named "imu".
     imu = hardwareMap.get(BNO055IMU.class, "imu");
+
     imu.initialize(parameters);
+
+    // make sure the gyro is calibrated before continuing
+    while (!imu.isGyroCalibrated() || !imu.isAccelerometerCalibrated())
+    {
+      sleep(50);
+    }
+
 
     // Set up our telemetry dashboard
     composeTelemetry();
@@ -64,7 +74,7 @@ public class Test_TheIMU extends LinearOpMode
     waitForStart();
 
     // Start the logging of measured acceleration
-    imu.startAccelerationIntegration(new Position(), new Velocity(), 50);
+    imu.startAccelerationIntegration(new Position(), new Velocity(), 0);
 
     // Loop and update the dashboard
     while (opModeIsActive()) {
@@ -86,7 +96,9 @@ public class Test_TheIMU extends LinearOpMode
       // to do that in each of the three items that need that info, as that's
       // three times the necessary expense.
       angles   = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-      gravity  = imu.getGravity();
+      gravity  = imu.getLinearAcceleration();
+      position = imu.getPosition();
+
     }
     });
 
