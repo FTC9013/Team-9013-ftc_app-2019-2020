@@ -14,7 +14,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
 import static org.firstinspires.ftc.robotcore.external.navigation.NavUtil.meanIntegrate;
 import static org.firstinspires.ftc.robotcore.external.navigation.NavUtil.plus;
 
-public class AccelerationIntegrator9013 implements BNO055IMU.AccelerationIntegrator
+public class AccelerationIntegrator9013 implements BNO055IMUCustom.AccelerationIntegrator
 {
   //------------------------------------------------------------------------------------------
   // State
@@ -23,11 +23,12 @@ public class AccelerationIntegrator9013 implements BNO055IMU.AccelerationIntegra
   BNO055IMU.Parameters parameters;
   private Position position;
   private Velocity velocity;
-  private Acceleration acceleration;
+  private Acceleration previousAcceleration;
+
 
   public Position getPosition() { return this.position; }
   public Velocity getVelocity() { return this.velocity; }
-  public Acceleration getAcceleration() { return this.acceleration; }
+  public Acceleration getAcceleration() { return this.previousAcceleration; }
 
   //------------------------------------------------------------------------------------------
   // Construction
@@ -38,7 +39,7 @@ public class AccelerationIntegrator9013 implements BNO055IMU.AccelerationIntegra
     this.parameters = null;
     this.position = new Position();
     this.velocity = new Velocity();
-    this.acceleration = null;
+    this.previousAcceleration = null;
   }
 
   //------------------------------------------------------------------------------------------
@@ -52,41 +53,34 @@ public class AccelerationIntegrator9013 implements BNO055IMU.AccelerationIntegra
     this.parameters = parameters;
     this.position = initialPosition != null ? initialPosition : this.position;
     this.velocity = initialVelocity != null ? initialVelocity : this.velocity;
-    this.acceleration = null;
+    this.previousAcceleration = null;
   }
 
-  @Override public void update(Acceleration linearAcceleration)
+  // This runs less frequently than the acceleration filter.  It does the integration
+  // into velocity and position.
+  @Override public void update(Acceleration filteredAcceleration)
   {
-    // We should always be given a timestamp here
-    if (linearAcceleration.acquisitionTime != 0)
+    // We should always have valid filtered data.
+    if (previousAcceleration != null && filteredAcceleration.acquisitionTime != 0)
     {
-      // We can only integrate if we have a previous acceleration to baseline from
-      if (acceleration != null)
+      Velocity velocityPrev = velocity;
+
+      Velocity deltaVelocity = meanIntegrate(filteredAcceleration, previousAcceleration);
+      velocity = plus(velocity, deltaVelocity);
+
+      if (velocityPrev.acquisitionTime != 0) // make sure we have at least one velocity sample.
       {
-        Acceleration accelPrev    = acceleration;
-        Velocity     velocityPrev = velocity;
-
-        acceleration = linearAcceleration;
-
-        if (accelPrev.acquisitionTime != 0)
-        {
-          Velocity deltaVelocity = meanIntegrate(acceleration, accelPrev);
-          velocity = plus(velocity, deltaVelocity);
-        }
-
-        if (velocityPrev.acquisitionTime != 0)
-        {
-          Position deltaPosition = meanIntegrate(velocity, velocityPrev);
-          position = plus(position, deltaPosition);
-        }
-
-        if (parameters != null && parameters.loggingEnabled)
-        {
-          RobotLog.vv(parameters.loggingTag, "dt=%.3fs accel=%s vel=%s pos=%s", (acceleration.acquisitionTime - accelPrev.acquisitionTime)*1e-9, acceleration, velocity, position);
-        }
+        Position deltaPosition = meanIntegrate(velocity, velocityPrev);
+        position = plus(position, deltaPosition);
       }
-      else
-        acceleration = linearAcceleration;
+
+      if (parameters != null && parameters.loggingEnabled)
+      {
+        RobotLog.vv(parameters.loggingTag, "dt=%.3fs accel=%s vel=%s pos=%s",
+            (filteredAcceleration.acquisitionTime - previousAcceleration.acquisitionTime)*1e-9,
+            filteredAcceleration, velocity, position);
+      }
     }
+    previousAcceleration = filteredAcceleration;
   }
 }

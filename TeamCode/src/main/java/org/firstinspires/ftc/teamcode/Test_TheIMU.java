@@ -1,9 +1,5 @@
 package org.firstinspires.ftc.teamcode;
 
-
-import com.qualcomm.hardware.bosch.BNO055IMU;
-import com.qualcomm.hardware.bosch.*;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -18,10 +14,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
 
 import java.util.Locale;
 
-import static java.lang.Thread.sleep;
-
 @TeleOp(name = "Test_TheIMU", group = "Sensor")
-//@Disabled                            // Comment this out to add to the opmode list
+// @Disabled                            // Comment this out to add to the opmode list
 public class Test_TheIMU extends LinearOpMode
 {
   //----------------------------------------------------------------------------------------------
@@ -29,25 +23,26 @@ public class Test_TheIMU extends LinearOpMode
   //----------------------------------------------------------------------------------------------
 
   // The IMU sensor object
-  private BNO055IMU imu;
+  private Team9013IMU imu;
 
   // State used for updating telemetry
   private Orientation angles;
-  private Acceleration gravity;
+  private Acceleration acceleration;
   private Position position;
 
   //----------------------------------------------------------------------------------------------
   // Main logic
   //----------------------------------------------------------------------------------------------
 
-  @Override public void runOpMode() {
+  @Override public void runOpMode()
+  {
 
     // Set up the parameters with which we will use our IMU. Note that integration
     // algorithm here just reports accelerations to the logcat log; it doesn't actually
     // provide positional information.
-    BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
-    parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
-    parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+    Team9013IMU.Parameters parameters = new Team9013IMU.Parameters();
+    parameters.angleUnit           = Team9013IMU.AngleUnit.DEGREES;
+    parameters.accelUnit           = Team9013IMU.AccelUnit.METERS_PERSEC_PERSEC;
     parameters.calibrationDataFile = "IMUCalibration.json"; // see the calibration sample opmode
     parameters.loggingEnabled      = false;
     parameters.loggingTag          = "IMU";
@@ -56,16 +51,18 @@ public class Test_TheIMU extends LinearOpMode
     // Retrieve and initialize the IMU. We expect the IMU to be attached to an I2C port
     // on a Core Device Interface Module, configured to be a sensor of type "AdaFruit IMU",
     // and named "imu".
-    imu = hardwareMap.get(BNO055IMU.class, "imu");
+    imu = hardwareMap.get(Team9013IMU.class, "imu");
 
     imu.initialize(parameters);
 
     // make sure the gyro is calibrated before continuing
-    while (!imu.isGyroCalibrated() || !imu.isAccelerometerCalibrated())
-    {
-      sleep(50);
-    }
-
+    /* ToDo Figure out why/how calibration data file is not working showing the gyro and accel are
+        calibrated.  */
+//    while (!imu.isGyroCalibrated() || !imu.isAccelerometerCalibrated())
+//    while (!imu.isGyroCalibrated())
+//    {
+//      sleep(50);
+//    }
 
     // Set up our telemetry dashboard
     composeTelemetry();
@@ -73,8 +70,8 @@ public class Test_TheIMU extends LinearOpMode
     // Wait until we're told to go
     waitForStart();
 
-    // Start the logging of measured acceleration
-    imu.startAccelerationIntegration(new Position(), new Velocity(), 0);
+    // Start the integrating acceleration
+    imu.startAccelerationIntegration(new Position(), new Velocity(), 50);
 
     // Loop and update the dashboard
     while (opModeIsActive()) {
@@ -86,7 +83,8 @@ public class Test_TheIMU extends LinearOpMode
   // Telemetry Configuration
   //----------------------------------------------------------------------------------------------
 
-  void composeTelemetry() {
+  void composeTelemetry()
+  {
 
     // At the beginning of each telemetry update, grab a bunch of data
     // from the IMU that we will then display in separate lines.
@@ -95,9 +93,9 @@ public class Test_TheIMU extends LinearOpMode
       // Acquiring the angles is relatively expensive; we don't want
       // to do that in each of the three items that need that info, as that's
       // three times the necessary expense.
-      angles   = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-      gravity  = imu.getLinearAcceleration();
-      position = imu.getPosition();
+      angles        = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+      acceleration  = imu.getAcceleration();
+      position      = imu.getPosition();
 
     }
     });
@@ -132,17 +130,17 @@ public class Test_TheIMU extends LinearOpMode
         });
 
     telemetry.addLine()
-        .addData("grvty", new Func<String>() {
+        .addData("accel", new Func<String>() {
           @Override public String value() {
-            return gravity.toString();
+            return acceleration.toString();
           }
         })
         .addData("mag", new Func<String>() {
           @Override public String value() {
             return String.format(Locale.getDefault(), "%.3f",
-                Math.sqrt(gravity.xAccel*gravity.xAccel
-                    + gravity.yAccel*gravity.yAccel
-                    + gravity.zAccel*gravity.zAccel));
+                Math.sqrt(acceleration.xAccel*acceleration.xAccel
+                    + acceleration.yAccel*acceleration.yAccel
+                    + acceleration.zAccel*acceleration.zAccel));
           }
         });
     telemetry.addLine()

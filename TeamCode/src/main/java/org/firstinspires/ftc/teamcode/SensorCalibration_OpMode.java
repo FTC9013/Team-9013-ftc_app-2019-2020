@@ -140,6 +140,8 @@ public class SensorCalibration_OpMode extends OpMode
     BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
     parameters.loggingEnabled = true;
     parameters.loggingTag = "IMU";
+    // use NDOF for collecting cal data so compass will be calibrated also.
+    parameters.mode = BNO055IMU.SensorMode.NDOF;
     imu = hardwareMap.get(BNO055IMU.class, "imu");
     imu.initialize(parameters);
 
