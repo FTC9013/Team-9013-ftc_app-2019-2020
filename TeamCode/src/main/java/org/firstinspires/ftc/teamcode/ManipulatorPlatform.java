@@ -41,14 +41,14 @@ public class ManipulatorPlatform
     gatherRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
     gatherLeftMotor.setDirection(DcMotor.Direction.REVERSE);
-    gatherRightMotor.setDirection(DcMotor.Direction.FORWARD);
+    gatherRightMotor.setDirection(DcMotor.Direction.REVERSE);
 
     gatherLeftMotor.setVelocity(0, RADIANS); // radians/second
     gatherRightMotor.setVelocity(0, RADIANS);
 
     elevatorMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     elevatorMotor.setPower(0);
-    elevatorMotor.setDirection(DcMotor.Direction.FORWARD);
+    elevatorMotor.setDirection(DcMotor.Direction.REVERSE);
     elevatorMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     elevatorMotor.setTargetPosition(0);
     elevatorMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -70,11 +70,13 @@ public class ManipulatorPlatform
 
   }
 
+
   void gatherOn()
   {
     gatherLeftMotor.setVelocity(2 * Math.PI, RADIANS); // radians/second
     gatherRightMotor.setVelocity(2 * Math.PI, RADIANS);
   }
+
 
   void gatherOff()
   {
@@ -109,6 +111,7 @@ public class ManipulatorPlatform
       latchLeftServo.setPosition(1);
     }
   }
+
 
   void grab(boolean position)
   {
