@@ -51,4 +51,29 @@ public class LEDs {
     pattern = FIRE_LARGE;
     blinkin.setPattern(pattern);
   }
+
+  public void LEDLoop()
+  {
+    switch(ledState)
+    {
+      case TWINKLES_LAVA_PALETTE:
+      blinkin.setPattern(pattern);
+      break;
+
+      case COLOR_WAVES_OCEAN_PALETTE:
+      blinkin.setPattern(pattern);
+      break;
+
+      case SHOT_BLUE:
+        blinkin.setPattern(pattern);
+        break;
+
+      case :
+        blinkin.setPattern(pattern);
+        break;
+    }
+
+  }
+
+
 }

@@ -70,12 +70,12 @@ public class TeleOpPrimary extends LinearOpMode {
       }
 
 
-      if (gamepad1.a) // Latch
+      if (gamepad1.left_bumper) // Latch
       {
         manipulatorPlatform.latchPosition(true);
       }
 
-      if (gamepad1.b)  // Unlatch
+      if (gamepad1.left_trigger > 0.5)  // Unlatch
       {
         manipulatorPlatform.latchPosition(false);
       }
@@ -84,12 +84,12 @@ public class TeleOpPrimary extends LinearOpMode {
       // Second seat...  controls (game pad 2)
       if (gamepad1.left_bumper)  // grab
       {
-        manipulatorPlatform.grab(true);
+        manipulatorPlatform.grab(false);
       }
       if (gamepad1.left_trigger > 0.5)  // release
       {
         // send joystick inputs to the bench
-        manipulatorPlatform.grab(false);
+        manipulatorPlatform.grab(true);
       }
 
 
@@ -104,23 +104,23 @@ public class TeleOpPrimary extends LinearOpMode {
       }
 
 
-      if (gamepad2.x)   // Extend
-      {
-        manipulatorPlatform.extenderPosition(200);
-      }
-
-      if (gamepad2.b)   // retract
-      {
-        manipulatorPlatform.extenderPosition(0);
-      }
-
-
-      if (gamepad2.y)
+      if (gamepad2.b)   // Extend
       {
         manipulatorPlatform.elevatorPosition(200);
       }
 
-      if (gamepad2.a)
+      if (gamepad2.a)   // retract
+      {
+        manipulatorPlatform.elevatorPosition(150);
+      }
+
+
+      if (gamepad2.x)
+      {
+        manipulatorPlatform.elevatorPosition(50);
+      }
+
+      if (gamepad2.y)
       {
         manipulatorPlatform.elevatorPosition(0);
       }
