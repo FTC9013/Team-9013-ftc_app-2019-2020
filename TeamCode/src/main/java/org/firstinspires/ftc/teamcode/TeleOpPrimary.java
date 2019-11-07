@@ -13,6 +13,10 @@ public class TeleOpPrimary extends LinearOpMode {
   private ManipulatorPlatform manipulatorPlatform;
   private LEDs leds;
 
+  private final double highSpeed = 1.0;
+  private final double lowSpeed = 0.5;
+
+
   private ElapsedTime runtime = new ElapsedTime();
 
   @Override
@@ -28,6 +32,8 @@ public class TeleOpPrimary extends LinearOpMode {
     // set deadzone to minimize unwanted stick input.
     gamepad1.setJoystickDeadzone((float)0.05);
 
+    boolean goingFast = false;
+
     // Wait for the game to start (driver presses PLAY)
     waitForStart();
     runtime.reset();
@@ -42,6 +48,17 @@ public class TeleOpPrimary extends LinearOpMode {
                          gamepad1.right_stick_x, telemetry);
 
     // Driver controls (game pad 1)
+      if (gamepad1.right_trigger > 0.5 && !goingFast )  // Go fast
+      {
+        MecanumDriveChassis.turboMode(highSpeed);
+        goingFast = true;
+      }
+      else if (gamepad1.right_trigger < 0.5 && goingFast)
+      {
+        MecanumDriveChassis.turboMode(lowSpeed);
+        goingFast = false;
+      }
+
       if (gamepad1.x)
       {
         manipulatorPlatform.gatherOn();
@@ -65,11 +82,11 @@ public class TeleOpPrimary extends LinearOpMode {
 
 
       // Second seat...  controls (game pad 2)
-      if (gamepad2.right_bumper)  // grab
+      if (gamepad1.left_bumper)  // grab
       {
         manipulatorPlatform.grab(true);
       }
-      if (gamepad2.left_bumper)  // release
+      if (gamepad1.left_trigger > 0.5)  // release
       {
         // send joystick inputs to the bench
         manipulatorPlatform.grab(false);
