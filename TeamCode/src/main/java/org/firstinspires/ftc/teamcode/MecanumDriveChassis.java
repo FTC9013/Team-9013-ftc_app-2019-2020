@@ -316,7 +316,7 @@ public class MecanumDriveChassis {
   }
 
 
-  void turboMode(double speedVar)
+  public void turboMode(double speedVar)
   {
     this.speedScale = speedVar;
   }

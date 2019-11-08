@@ -7,7 +7,8 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import static com.qualcomm.hardware.rev.RevBlinkinLedDriver.BlinkinPattern.*;
 
-public class LEDs {
+public class LEDs
+{
 
   private RevBlinkinLedDriver blinkin;
   private RevBlinkinLedDriver.BlinkinPattern pattern;
@@ -52,7 +53,7 @@ public class LEDs {
     blinkin.setPattern(pattern);
   }
 
-  public void LEDLoop()
+/*  public void LEDLoop()
   {
     switch(ledState)
     {
@@ -68,12 +69,12 @@ public class LEDs {
         blinkin.setPattern(pattern);
         break;
 
-      case :
+      default:
         blinkin.setPattern(pattern);
         break;
-    }
-
-  }
-
+    }*/
 
 }
+
+
+

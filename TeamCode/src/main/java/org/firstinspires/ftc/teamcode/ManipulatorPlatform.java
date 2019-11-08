@@ -71,18 +71,46 @@ public class ManipulatorPlatform
   }
 
 
-  void gatherOn()
+  void gatherOn(boolean direction)  // true = suck up stones
   {
-    gatherLeftMotor.setVelocity(2 * Math.PI, RADIANS); // radians/second
-    gatherRightMotor.setVelocity(2 * Math.PI, RADIANS);
+    if(direction) // spin to gather stones
+    {
+      gatherLeftMotor.setVelocity(2 * Math.PI, RADIANS); // radians/second
+      gatherRightMotor.setVelocity(2 * Math.PI, RADIANS);
+    }
+    else
+    {
+      gatherLeftMotor.setVelocity(-2 * Math.PI, RADIANS); // radians/second
+      gatherRightMotor.setVelocity(-2 * Math.PI, RADIANS);
+    }
   }
-
 
   void gatherOff()
   {
+    // squirt out the stone.  Run for some time then stop
     gatherLeftMotor.setVelocity(0, RADIANS); // radians/second
     gatherRightMotor.setVelocity(0, RADIANS);
   }
+
+  void gatherDown()
+  {
+    //servo down
+  }
+
+
+  void gatherUp()
+  {
+    //servo up
+  }
+
+  void gatherAbort()
+  {
+    //motors stop
+    gatherOff();
+    //servo up
+    gatherUp();
+  }
+
 
   void elevatorPosition(int count)
   {
