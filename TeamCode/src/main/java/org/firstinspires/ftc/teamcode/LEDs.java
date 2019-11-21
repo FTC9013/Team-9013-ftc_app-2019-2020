@@ -53,6 +53,37 @@ public class LEDs
     blinkin.setPattern(pattern);
   }
 
+
+   public void leds.goChangeColor(int colorL)
+  {
+    switch (colorL)
+    {
+      case (colorL == 1)
+      {
+        pattern = TWINKLES_LAVA_PALETTE;
+        blinkin.setPattern(pattern);
+        break;
+      }
+      case (colorL == 2)
+      {
+        pattern = SHOT_BLUE;
+        blinkin.setPattern(pattern);
+        break;
+      }
+      case (colorL == 3)
+      {
+        pattern = COLOR_WAVES_OCEAN_PALETTE;
+        blinkin.setPattern(pattern);
+        break;
+      }
+      default:
+      {
+
+      }
+
+    }
+  }
+
 /*  public void LEDLoop()
   {
     switch(ledState)

@@ -48,9 +48,22 @@ public class TeleOpPrimary extends LinearOpMode {
     runtime.reset();
 
     leds.goConfetti();
-
+    int zzz = 1;
+    int yyy = 1;
+    int colorSpeed = 10;
     // run until the end of the match (driver presses STOP)
     while (opModeIsActive()) {
+
+      //set up counter
+
+
+      if (zzz % colorSpeed == 0)
+      {
+        leds.goChangeColor(yyy % 3);
+        yyy++;
+
+      }
+      zzz++;
 
       // send joystick inputs to the drive chassis
       driveChassis.drive(gamepad1.left_stick_y, gamepad1.left_stick_x,
