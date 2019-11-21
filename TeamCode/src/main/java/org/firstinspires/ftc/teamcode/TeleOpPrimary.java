@@ -28,6 +28,9 @@ public class TeleOpPrimary extends LinearOpMode {
   private double stoneSpitTimeoutTime = 0;
   private boolean stoneSpitTimerRunning = false;
 
+  private final double colorSpeed = 10; // change colors every 10 seconds
+  private double LEDTimeoutTime = 0;
+
   @Override
   public void runOpMode() {
     telemetry.addData("Status", "Initialized");
@@ -47,23 +50,19 @@ public class TeleOpPrimary extends LinearOpMode {
     waitForStart();
     runtime.reset();
 
-    leds.goConfetti();
-    int zzz = 1;
-    int yyy = 1;
-    int colorSpeed = 10;
+    leds.goConfetti();  // start the LEDs in confetti
+
     // run until the end of the match (driver presses STOP)
     while (opModeIsActive()) {
 
       //set up counter
 
-
-      if (zzz % colorSpeed == 0)
+      // steps through color sequences every 'colorSpeed' seconds.
+      if ( eventTimeOut( LEDTimeoutTime ) )
       {
-        leds.goChangeColor(yyy % 3);
-        yyy++;
-
+        LEDTimeoutTime = eventTimer.time() + colorSpeed;  // load for next cycle
+        leds.goChangeColor();
       }
-      zzz++;
 
       // send joystick inputs to the drive chassis
       driveChassis.drive(gamepad1.left_stick_y, gamepad1.left_stick_x,

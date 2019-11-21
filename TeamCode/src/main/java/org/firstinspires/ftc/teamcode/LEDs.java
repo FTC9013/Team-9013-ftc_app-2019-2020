@@ -11,8 +11,21 @@ public class LEDs
 {
 
   private RevBlinkinLedDriver blinkin;
-  private RevBlinkinLedDriver.BlinkinPattern pattern;
+  private int currnetPpattern = 0;
 
+  // list of led patterns to sequence through.  add / remove as you like.
+  private RevBlinkinLedDriver.BlinkinPattern ledSequence[] =
+      {
+          TWINKLES_LAVA_PALETTE,
+          SHOT_BLUE,
+          FIRE_LARGE,
+          COLOR_WAVES_OCEAN_PALETTE,
+          FIRE_MEDIUM,
+          RAINBOW_WITH_GLITTER
+
+          // edit this list to add more options.
+
+      };
 
   LEDs(HardwareMap hardwareMap)
   {
@@ -22,88 +35,59 @@ public class LEDs
 
     // Get blinkin LED controller (emulates a servo...)
     blinkin = hardwareMap.get(RevBlinkinLedDriver.class, "leds");
+    currnetPpattern = 0;
   }
 
   public void goOff()
   {
-    pattern = BLACK;
-    blinkin.setPattern(pattern);
+    blinkin.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLACK);
   }
 
   public void goStrobe()
   {
-    pattern = RAINBOW_WITH_GLITTER;
-    blinkin.setPattern(pattern);
+    blinkin.setPattern(RevBlinkinLedDriver.BlinkinPattern.RAINBOW_WITH_GLITTER);
   }
 
   public void goConfetti()
   {
-    pattern = CONFETTI;
-    blinkin.setPattern(pattern);
+    blinkin.setPattern(RevBlinkinLedDriver.BlinkinPattern.CONFETTI);
   }
 
   public void goOcean()
   {
-    pattern = SINELON_OCEAN_PALETTE;
-    blinkin.setPattern(pattern);
+    blinkin.setPattern(RevBlinkinLedDriver.BlinkinPattern.SINELON_OCEAN_PALETTE);
   }
   public void goFireLarge()
   {
-    pattern = FIRE_LARGE;
-    blinkin.setPattern(pattern);
+    blinkin.setPattern(RevBlinkinLedDriver.BlinkinPattern.FIRE_LARGE);
   }
 
 
-   public void leds.goChangeColor(int colorL)
+  public void goChangeColor()
   {
-    switch (colorL)
+    // go to the next index, check to make sure it's a legal value.
+    ++currnetPpattern;
+    if( currnetPpattern < ledSequence.length && currnetPpattern >= 0 )
     {
-      case (colorL == 1)
-      {
-        pattern = TWINKLES_LAVA_PALETTE;
-        blinkin.setPattern(pattern);
-        break;
-      }
-      case (colorL == 2)
-      {
-        pattern = SHOT_BLUE;
-        blinkin.setPattern(pattern);
-        break;
-      }
-      case (colorL == 3)
-      {
-        pattern = COLOR_WAVES_OCEAN_PALETTE;
-        blinkin.setPattern(pattern);
-        break;
-      }
-      default:
-      {
-
-      }
-
+      blinkin.setPattern(ledSequence[currnetPpattern]);
+    }
+    // wrap if currentPattern is at the end of the pattern list
+    else if ( currnetPpattern >= ledSequence.length)
+    {
+      currnetPpattern = 0;
+      blinkin.setPattern(ledSequence[currnetPpattern]);
     }
   }
 
-/*  public void LEDLoop()
-  {
-    switch(ledState)
-    {
-      case TWINKLES_LAVA_PALETTE:
-      blinkin.setPattern(pattern);
-      break;
 
-      case COLOR_WAVES_OCEAN_PALETTE:
-      blinkin.setPattern(pattern);
-      break;
-
-      case SHOT_BLUE:
-        blinkin.setPattern(pattern);
-        break;
-
-      default:
-        blinkin.setPattern(pattern);
-        break;
-    }*/
+   public void goChangeColor(int colorL)
+   {
+     // test to make sure the index isn't too big or negative.
+     if(colorL < ledSequence.length && !(colorL < 0) )
+     {
+       blinkin.setPattern(ledSequence[colorL]);
+     }
+   }
 
 }
 
