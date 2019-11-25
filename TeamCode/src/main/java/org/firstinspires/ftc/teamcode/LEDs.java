@@ -65,16 +65,18 @@ public class LEDs
 
   public void goChangeColor()
   {
-    // go to the next index, check to make sure it's a legal value.
-    ++currnetPpattern;
-    if( currnetPpattern < ledSequence.length && currnetPpattern >= 0 )
-    {
-      blinkin.setPattern(ledSequence[currnetPpattern]);
-    }
     // wrap if currentPattern is at the end of the pattern list
-    else if ( currnetPpattern >= ledSequence.length)
+    if ( currnetPpattern >= ledSequence.length - 1)
     {
       currnetPpattern = 0;
+    }
+    else  // otherwise just go to the next pattern in the list
+    {
+      ++currnetPpattern;
+    }
+
+    if( currnetPpattern >= 0 && currnetPpattern < ledSequence.length )
+    {
       blinkin.setPattern(ledSequence[currnetPpattern]);
     }
   }
@@ -83,12 +85,11 @@ public class LEDs
    public void goChangeColor(int colorL)
    {
      // test to make sure the index isn't too big or negative.
-     if(colorL < ledSequence.length && !(colorL < 0) )
+     if( colorL >= 0 && colorL < ledSequence.length )
      {
        blinkin.setPattern(ledSequence[colorL]);
      }
    }
-
 }
 
 

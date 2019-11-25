@@ -53,9 +53,10 @@ public class MecanumDriveChassisAutonomous
   private static double desiredHeading;  // rotates about the Z axis [0,2PI) rad.
   private static double currentHeading;  // rotates about the Z axis [0,2PI) rad.
 
+
   // Robot speed scaling factor (% of joystick input to use)
   // applied uniformly across all joystick inputs to the JoystickToMotion() method.
-  private final double speedScale = 1.0;
+  private double speedScale = 0;
 
   // PID for the heading
   private final double propCoeff = 0.9;
@@ -305,25 +306,25 @@ public class MecanumDriveChassisAutonomous
 
 
   // grab the imu heading and crunch out the values used for navigation and telemetry.
-  private void testAngle()
-  {
+  private void testAngle() {
     // desired angle in degrees +/- 0 to 180 where CCW is + and CW is -
     angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS);
 
     // convert  imu angle range to our [0, 2PI) range
-    if (angles.firstAngle < 0 )
-    {
+    if (angles.firstAngle < 0) {
       currentHeading = angles.firstAngle + 2 * Math.PI;
-    }
-    else
-    {
+    } else {
       currentHeading = angles.firstAngle;
     }
 
     IMUTelemetry.heading = currentHeading;
-    IMUTelemetry.error = vTheta = headingPID.getOutput(currentHeading, desiredHeading );
+    IMUTelemetry.error = vTheta = headingPID.getOutput(currentHeading, desiredHeading);
   }
 
+  public void turboMode(double speedVar)
+  {
+    this.speedScale = speedVar;
+  }
 
 /*
 
