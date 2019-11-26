@@ -71,15 +71,15 @@ public class TeleOpPrimary extends LinearOpMode {
       // *** Driver controls (game pad 1)
 
       // provide a throttle capability to run the bot at one of two speeds.
-      if (gamepad1.right_trigger > 0.5 && !goingFast )  // Go fast
+      if (gamepad1.right_trigger > 0.5 && goingFast )  // Go fast
       {
-        driveChassis.turboMode(highSpeed);
-        goingFast = true;
-      }
-      else if (gamepad1.right_trigger < 0.5 && goingFast)
-      {
-        driveChassis.turboMode(lowSpeed);
+        driveChassis.setSpeedScale(lowSpeed);
         goingFast = false;
+      }
+      else if (gamepad1.right_trigger < 0.5 && !goingFast)
+      {
+        driveChassis.setSpeedScale(highSpeed);
+        goingFast = true;
       }
 
       // Closes the latches to drag the building platform.

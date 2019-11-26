@@ -57,35 +57,31 @@ public class AutonomousPrimary extends LinearOpMode {
     // speed:    the drive speed from 0-100%
     // angle:    the desired angle of travel relative to the ZERO orientation in DEGREES
     //           ZERO is where the bot was facing when the IMU calibrated.
-    //           desired angle in degrees +/- 0 to 180 where CCW is + and CW is -
+    //           desired angle in degrees 0 to 360 CCW
     // distance: the distance to travel in inches
 
     Queue<Leg> leftPath = new LinkedList<>();
     leftPath.add(new Leg(Leg.Mode.TURN_DRIVE, 40, 0, 0));
     leftPath.add(new Leg(Leg.Mode.FORWARD, 40, 0, 20));
-    leftPath.add(new Leg(Leg.Mode.LEFT, 40, 0, 13));
-    leftPath.add(new Leg(Leg.Mode.FORWARD, 40, 0, 15));
+    leftPath.add(new Leg(Leg.Mode.TURN_DRIVE, 60, 90, 0));
     leftPath.add(new Leg(Leg.Mode.BACKWARDS, 40, 0, 15));
-    leftPath.add(new Leg(Leg.Mode.TURN_DRIVE, 60, 40, 0));
 
-    Queue<Leg> rightPath = new LinkedList<>();
-    rightPath.add(new Leg(Leg.Mode.TURN_DRIVE, 40, 0, 0));
-    rightPath.add(new Leg(Leg.Mode.FORWARD, 40, 0, 20));
-    rightPath.add(new Leg(Leg.Mode.RIGHT, 40, 0, 20));
-    rightPath.add(new Leg(Leg.Mode.FORWARD, 40, 0, 15));
-    rightPath.add(new Leg(Leg.Mode.BACKWARDS, 40, 0, 15));
-    rightPath.add(new Leg(Leg.Mode.TURN_DRIVE, 60, 40, 0));
+
+
 
     // Wait for the game to start (driver presses PLAY)
     waitForStart();
     runtime.reset();
 
+    // load the path
+    driveChassis.startPlan(leftPath);
+
+
     while (opModeIsActive())
     {
 
-
-
-
+      // Process the drive chassis
+      driveChassis.autoDrive( telemetry );
 
 
     }

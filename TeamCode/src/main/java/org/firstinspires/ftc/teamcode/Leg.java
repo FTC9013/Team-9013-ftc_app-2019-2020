@@ -2,8 +2,8 @@ package org.firstinspires.ftc.teamcode;
 
 // mode:     {FORWARD, BACKWARDS, LEFT, RIGHT, TURN_DRIVE}
 // speed:    the drive speed from 0-100%
-// angle:    the desired angle of travel relative to the current bot position and orientation.
-//           in DEGREES
+// angle:    the desired angle of travel relative to the INITIAL ABSOLUTE bot position and
+//           orientation in DEGREES.
 // distance: the distance to travel in inches.
 
 public class Leg

@@ -142,7 +142,7 @@ public class MecanumDriveChassis
     headingPID = new PID(propCoeff, integCoeff, diffCoeff);
 
     // get the initial error and put valid data in the telemetry from the imu
-    testAngle();
+    IMUAngleProcessing();
 
     // set initial desired heading to the current actual heading.
     desiredHeading = currentHeading;
@@ -196,9 +196,11 @@ public class MecanumDriveChassis
     // Converts the joystick inputs from cartesian to polar from 0 to +/- PI oriented
     // with 0 to the right of the robot. (standard polar plot)
     thetaD = Math.atan2(-leftStickY, leftStickX);
+
     // orient to the robot by rotating PI/2 to make the joystick zero at the forward of bot.
     // instead of the right side.
     thetaD = thetaD - Math.PI / 2;
+
     // simply takes the right stick X value and invert to use as a rotational speed.
     // inverted since we want CW rotation on a positive value.
     // which is opposite of what PowerToWheels() wants in polar positive rotation (CCW).
@@ -225,7 +227,7 @@ public class MecanumDriveChassis
       }
     }
     // get the imu angles in the format we need.
-    testAngle();
+    IMUAngleProcessing();
 
     // PID controls the vTheta input to the wheel power equation.
     // vTheta = headingPID.getOutput(currentHeading, desiredHeading );
@@ -279,8 +281,10 @@ public class MecanumDriveChassis
     double minPower = Collections.min(speeds);
     double maxPower = Collections.max(speeds);
     double maxMag = Math.max(Math.abs(minPower), Math.abs(maxPower));
-    if (maxMag > 1.0) {
-      for (int i = 0; i < speeds.size(); i++) {
+    if (maxMag > 1.0)
+    {
+      for (int i = 0; i < speeds.size(); i++)
+      {
         speeds.set(i, speeds.get(i) / maxMag);
       }
     }
@@ -294,7 +298,9 @@ public class MecanumDriveChassis
 
 
   // grab the imu heading and crunch out the values used for navigation and telemetry.
-  private void testAngle() {
+  // This method produces the heading input component to the motors from the PID that holds the
+  // desired angle.  The error from the PID is sent to the motors in the vTheta variable.
+  private void IMUAngleProcessing() {
     // desired angle in degrees +/- 0 to 180 where CCW is + and CW is -
     angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS);
 
@@ -309,8 +315,9 @@ public class MecanumDriveChassis
     IMUTelemetry.error = vTheta = headingPID.getOutput(currentHeading, desiredHeading);
   }
 
-
-  public void turboMode(double speedVar)
+  /** @param speedVar range from 0 to 1, sets the throttle range as a % of maximum
+   * 1 = 100% of maximum capable speed range.  */
+  public void setSpeedScale(double speedVar)
   {
     this.speedScale = speedVar;
   }

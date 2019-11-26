@@ -11,7 +11,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
-import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -39,20 +38,25 @@ public class MecanumDriveChassisAutonomous
   // Robot speed [-1, 1].  (speed in any direction that is not rotational)
   // does not have any angular component, just scaler velocity.
   // combined with the angular component for motion.  Even if angle is 0 (forward).
-  private static double vD;
+  private static double vD = 0;
 
   // Robot angle while moving [0, 2PI] or [0, +/-PI]. (angle to displace the center of the bot,
   // ASDF)
   // relative to the direction the bot is facing.
-  private static double thetaD;
+  private static double thetaD = 0;
 
   // Speed component for rotation about the Z axis. [-x, x]
-  private static double vTheta;
+  // controlled by the error signal from the heading PID
+  private static double vTheta = 0;
 
   // heading about a unit circle in radians.
   private static double desiredHeading;  // rotates about the Z axis [0,2PI) rad.
   private static double currentHeading;  // rotates about the Z axis [0,2PI) rad.
 
+  // keeps track of the drive plan state
+  private Queue<Leg> plan;
+  private Leg currentLeg;
+  private boolean driveingAPlan = false;
 
   // Robot speed scaling factor (% of joystick input to use)
   // applied uniformly across all joystick inputs to the JoystickToMotion() method.
@@ -71,6 +75,17 @@ public class MecanumDriveChassisAutonomous
 
   private final double headingThreshold = 0.05;
   private final int headdingAverageNumberOfSamples = 10;
+
+  // number of encoder counts equal to one inch of forward travel
+  private final int countsPerDriveInch = 10000/117;
+
+  // number of encoder counts equal to one inch of forward travel
+  private  final int countsPerStrafeInch = 5000/51;
+
+  private final int closeEnough = 10;  // Encoder counts to call position close enough to target.
+
+  // how many counts the tracking motor (R. Front) needs to go for the current drive leg.
+  private int targetCounts = 0;
 
   private PID headingPID = null;
   private RollingAverage averageHeading = null;
@@ -99,11 +114,6 @@ public class MecanumDriveChassisAutonomous
 
     imu.initialize(parameters);
 
-    leftFrontDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-    leftRearDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-    rightFrontDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-    rightRearDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
     leftFrontDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     leftRearDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     rightFrontDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -117,6 +127,8 @@ public class MecanumDriveChassisAutonomous
     leftRearDrive.setDirection(DcMotor.Direction.REVERSE);
     rightFrontDrive.setDirection(DcMotor.Direction.FORWARD);
     rightRearDrive.setDirection(DcMotor.Direction.FORWARD);
+
+    RunUsingEncoders();
 
     // set motion parameters.
     vD = 0;
@@ -148,7 +160,7 @@ public class MecanumDriveChassisAutonomous
     headingPID = new PID(propCoeff, integCoeff, diffCoeff);
 
     // get the initial error and put valid data in the telemetry from the imu
-    testAngle();
+    IMUAngleProcessing();
 
     // set initial desired heading to the current actual heading.
     desiredHeading = currentHeading;
@@ -182,6 +194,7 @@ public class MecanumDriveChassisAutonomous
     // Math out what to send to the motors and send it.
     PowerToWheels();
   }
+
 
   /**
    * Process the joystick values into motion vector.
@@ -234,11 +247,43 @@ public class MecanumDriveChassisAutonomous
       }
     }
     // get the imu angles in the format we need.
-    testAngle();
+    IMUAngleProcessing();
 
     // PID controls the vTheta input to the wheel power equation.
     // vTheta = headingPID.getOutput(currentHeading, desiredHeading );
   }
+
+
+  void autoDrive( Telemetry telemetry )
+  {
+    telemetry.addLine().addData("Heading (rad) ", " %.4f", IMUTelemetry.heading )
+    .addData("Error (rad) ", " %.4f",IMUTelemetry.error );
+    telemetry.addLine().addData("Counts ", " %d", rightFrontDrive.getCurrentPosition() );
+    telemetry.update();
+
+    // always crunch the IMP data and work the PID to keep heading.
+    IMUAngleProcessing();
+
+    // the bot is not currently driving an active leg so if there is another one in the plan,
+    // start it, otherwise the plan is done.
+    if( driveingAPlan && !isDriving() )
+    {
+      nextLeg();
+    }
+
+    // No more legs in plan.
+    if (!driveingAPlan)
+    {
+      // plan is done, no active plan.  Just stop the bot and keep it stopped.
+      vD = 0;
+      thetaD = 0;
+    }
+
+    // Math out what to send to the motors and send it.
+    // keeps sending even at stop.  ( 0 power to wheels )
+    PowerToWheels();
+  }
+
 
   /**
    * Calculate the power settings and send to the wheels.  This also translates the force
@@ -306,14 +351,20 @@ public class MecanumDriveChassisAutonomous
 
 
   // grab the imu heading and crunch out the values used for navigation and telemetry.
-  private void testAngle() {
+  // This method produces the heading input component to the motors from the PID that holds the
+  // desired angle.  The error from the PID is sent to the motors in the vTheta variable.
+  private void IMUAngleProcessing()
+  {
     // desired angle in degrees +/- 0 to 180 where CCW is + and CW is -
     angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS);
 
     // convert  imu angle range to our [0, 2PI) range
-    if (angles.firstAngle < 0) {
+    if (angles.firstAngle < 0)
+    {
       currentHeading = angles.firstAngle + 2 * Math.PI;
-    } else {
+    }
+    else
+    {
       currentHeading = angles.firstAngle;
     }
 
@@ -321,162 +372,148 @@ public class MecanumDriveChassisAutonomous
     IMUTelemetry.error = vTheta = headingPID.getOutput(currentHeading, desiredHeading);
   }
 
-  public void turboMode(double speedVar)
+
+  /** @param speedVar    */
+  public void setSpeedScale(double speedVar)
   {
     this.speedScale = speedVar;
   }
 
-/*
+
+  /** Must be called from main loop repeatedly and quickly to stop the motors when the
+   * encoder count is reached.
+   * Uses the right front motor encoder for crude distance measurements.
+   * encoder is cleared and targetCounts is loaded with desired distance in counts at the start of
+   * each leg.
+   * @returns true if the bot is still moving */
+  boolean isDriving()
+  {
+    int currentCount = rightFrontDrive.getCurrentPosition();
+
+    // check if close enough on either side of target value, and also look for
+    // overrun of target.
+    if(abs( currentCount - targetCounts ) < closeEnough
+      || currentCount - targetCounts < closeEnough )
+    {
+      // stop the motors
+      vD = 0;
+      thetaD = 0;
+      return false;  // at the target.
+    }
+    else
+    {
+      return true;  // still moving
+    }
+  }
 
 
-  /*
-   * returns true if the bot is still moving
-   */
+  // Set up a new drive plan (list of drive legs)
+  void startPlan(Queue<Leg> newPlan )
+  {
+    if( newPlan.size() !=0 )
+    {
+      this.plan = newPlan;
+      driveingAPlan = true;
+    }
+  }
 
-  /*
-boolean isMoving() {
-  return abs( rightFrontDrive.getCurrentPosition()
-      - rightFrontDrive.getTargetPosition()) > closeEnough;
-
-/*
-    return rightFrontDrive.isBusy() || leftFrontDrive.isBusy()
-           || rightRearDrive.isBusy()
-           || leftRearDrive.isBusy();
-*/
-
-    /*
-}
 
   // execute a path (list of drive legs)
-  void move(Queue<Leg> path ) {
-    Leg currentLeg;
-    // as long as there are legs to drive...
-    while(path.size() !=0 ){
-      currentLeg = path.remove();
-      // speed is passed in as a % from 1 to 100.  motor speed control range is 0-1 with
-      // 1 being 100%
-      setMoveSpeed(currentLeg.speed/100);
+  boolean nextLeg()
+  {
 
-      switch (currentLeg.mode) {
+    if(plan.size() !=0 && driveingAPlan)
+    {
+      currentLeg = plan.remove();  // legs are removed as they are driven
+
+      switch (currentLeg.mode)
+      {
         case FORWARD:
-          driveForward(currentLeg.distance);
+          driveForward(currentLeg.speed/100, currentLeg.distance );
           break;
 
         case BACKWARDS:
-          driveBackwards(currentLeg.distance);
+          driveBackwards(currentLeg.speed/100, currentLeg.distance );
           break;
 
         case LEFT:
-          strafeLeft(currentLeg.distance);
+          strafeLeft(currentLeg.speed/100, currentLeg.distance );
           break;
 
         case RIGHT:
-          strafeRight(currentLeg.distance);
+          strafeRight(currentLeg.speed/100, currentLeg.distance );
           break;
 
         case TURN_DRIVE:
-          setMoveSpeed(MaxTurnSpeed);
           turnToAbsoluteAngle(currentLeg.angle);
-          setMoveSpeed(currentLeg.speed/100);
-          driveForward(currentLeg.distance);
+          driveForward(currentLeg.speed/100, currentLeg.distance );
           break;
       }
     }
-    // set speed back to 0 at the end of the drive
-    setMoveSpeed(0);
-
-  }
-
-  void driveForward(double inches){
-    // Move forward
-    stopAndResetEncoders();
-    leftFrontDrive.setTargetPosition((int)(inches * countsPerDriveInch));
-    leftRearDrive.setTargetPosition((int)(inches * countsPerDriveInch));
-    rightFrontDrive.setTargetPosition((int)(inches * countsPerDriveInch));
-    rightRearDrive.setTargetPosition((int)(inches * countsPerDriveInch));
-    runToPosition();
-    // wait for motors to stop
-    while (isMoving());
-  }
-
-  void driveBackwards(double inches){
-    stopAndResetEncoders();
-    leftFrontDrive.setTargetPosition(-(int)(inches * countsPerDriveInch));
-    leftRearDrive.setTargetPosition(-(int)(inches * countsPerDriveInch));
-    rightFrontDrive.setTargetPosition(-(int)(inches * countsPerDriveInch));
-    rightRearDrive.setTargetPosition(-(int)(inches * countsPerDriveInch));
-    runToPosition();
-    // wait for motors to stop
-    while (isMoving());
-  }
-
-  void strafeLeft(double inches){
-    stopAndResetEncoders();
-    leftFrontDrive.setTargetPosition(-(int)(inches * countsStrafePerInch));
-    leftRearDrive.setTargetPosition((int)(inches * countsStrafePerInch));
-    rightFrontDrive.setTargetPosition((int)(inches * countsStrafePerInch));
-    rightRearDrive.setTargetPosition(-(int)(inches * countsStrafePerInch));
-    runToPosition();
-    // wait for motors to stop
-    while (isMoving());
-  }
-
-  void strafeRight(double inches){
-    stopAndResetEncoders();
-    leftFrontDrive.setTargetPosition((int)(inches * countsStrafePerInch));
-    leftRearDrive.setTargetPosition(-(int)(inches * countsStrafePerInch));
-    rightFrontDrive.setTargetPosition(-(int)(inches * countsStrafePerInch));
-    rightRearDrive.setTargetPosition((int)(inches * countsStrafePerInch));
-    runToPosition();
-    // wait for motors to stop
-    while (isMoving());
-  }
-
-  void turnToAbsoluteAngle(double desiredAngle){
-    double delta;
-    do
+    // no more path to drive.
+    else
     {
-      stopAndResetEncoders();
-      // desired angle in degrees +/- 0 to 180 where CCW is + and CW is -
-      angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-
-      delta = desiredAngle - angles.firstAngle;
-      if(delta > 180 ) {delta -= 360;}
-      if(delta < -180 ) {delta += 360;}
-
-      // as long as the bot is not on the desired heading, keep turning
-      leftFrontDrive.setTargetPosition((int) (countsPerTurnDegree * -delta));
-      leftRearDrive.setTargetPosition((int) (countsPerTurnDegree * -delta));
-      rightFrontDrive.setTargetPosition((int) (countsPerTurnDegree * delta));
-      rightRearDrive.setTargetPosition((int) (countsPerTurnDegree * delta));
-      runToPosition();
-      // wait for motors to stop
-      while (isMoving());
-    } while (Math.abs(delta) > angleError );  // keep going till close enough to desired angle
+      driveingAPlan = false;
+    }
+    return driveingAPlan;
   }
 
-  void setMoveSpeed(double speed) {
-    rightFrontDrive.setPower(speed);
-    leftFrontDrive.setPower(speed);
-    rightRearDrive.setPower(speed);
-    leftRearDrive.setPower(speed);
+
+  void driveForward(double speed, double inches)
+  {
+    stopAndResetEncoders();
+    targetCounts = (int) ( inches * countsPerDriveInch );
+    vD = speed;     // 0 to 1
+    thetaD = 0;     // no translation, currentHeading still valid (assumed)
+    thetaD = thetaD - Math.PI / 2;  // adjust for bot orientation 90 degrees...
+    RunUsingEncoders();
   }
 
-  void stopAndResetEncoders(){
+  void driveBackwards(double speed, double inches)
+  {
+    stopAndResetEncoders();
+    targetCounts = - (int) ( inches * countsPerDriveInch );
+    vD = speed;     // 0 to 1
+    thetaD = Math.PI ;     // no translation, currentHeading still valid (assumed)
+    thetaD = thetaD - Math.PI / 2;  // adjust for bot orientation 90 degrees...
+    RunUsingEncoders();
+  }
+
+  void strafeLeft(double speed, double inches)
+  {
+    stopAndResetEncoders();
+
+
+
+  }
+
+  void strafeRight(double speed, double inches)
+  {
+    stopAndResetEncoders();
+
+
+
+  }
+
+  void turnToAbsoluteAngle(double newDesiredHeading)
+  {
+    this.desiredHeading = newDesiredHeading / 180 * Math.PI;  // convert to RADIANS
+  }
+
+  void stopAndResetEncoders()
+  {
     leftFrontDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     leftRearDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     rightFrontDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     rightRearDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
   }
 
-  void runToPosition() {
-    leftFrontDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-    leftRearDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-    rightFrontDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-    rightRearDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+  void RunUsingEncoders()
+  {
+    leftFrontDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    leftRearDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    rightFrontDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    rightRearDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
   }
-
- */
-
-
 }
