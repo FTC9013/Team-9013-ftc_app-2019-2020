@@ -2,9 +2,11 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.robotcontroller.external.samples.SensorDigitalTouch;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 import static org.firstinspires.ftc.robotcore.external.navigation.AngleUnit.RADIANS;
@@ -20,6 +22,10 @@ public class ManipulatorPlatform
   private Servo latchRightServo = null;
   private Servo grabberServo = null;
   private Servo rotatorServo = null;
+  private Servo gatherTableServo = null;
+  private Servo gatherReleaseServo = null;
+
+  private DigitalChannel stonePresentSensor = null;
   
   ManipulatorPlatform(HardwareMap hardwareMap)
   {
@@ -29,12 +35,22 @@ public class ManipulatorPlatform
 
     latchLeftServo = hardwareMap.get(Servo.class, "lLServo");
     latchRightServo = hardwareMap.get(Servo.class, "rLServo");
+
     grabberServo = hardwareMap.get(Servo.class, "gServo");
     rotatorServo = hardwareMap.get(Servo.class, "rServo");
 
+    gatherTableServo = hardwareMap.get(Servo.class, "gtServo");
+
+    gatherReleaseServo = hardwareMap.get(Servo.class, "grServo");
+
+    stonePresentSensor = hardwareMap.get(DigitalChannel.class, "spSensor");
+    stonePresentSensor.setMode(DigitalChannel.Mode.INPUT);
+
     gatherLeftMotor = (DcMotorEx)hardwareMap.get(DcMotor.class, "lGMotor");  //hub 2 port 0
     gatherRightMotor = (DcMotorEx)hardwareMap.get(DcMotor.class, "rGMotor");  //hub 2 port 0
+
     elevatorMotor = hardwareMap.get(DcMotor.class, "elMotor");  //hub 2 port 0
+
     extenderMotor = hardwareMap.get(DcMotor.class, "exMotor");  //hub 2 port 0
 
     gatherLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -61,16 +77,6 @@ public class ManipulatorPlatform
     extenderMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
   }
 
-
-  void test(float driveLeftY, float driveLeftX, float driveRightX, Telemetry telemetry)
-  {
- //   telemetry.addData("Heading (rad) ", " %.4f", IMUTelemetry.heading );
- //   telemetry.addData("Error (rad) ", " %.4f",IMUTelemetry.error );
-    telemetry.update();
-
-  }
-
-
   void gatherOn(boolean direction)  // true = suck up stones
   {
     if(direction) // spin to gather stones
@@ -95,12 +101,27 @@ public class ManipulatorPlatform
   void gatherDown()
   {
     //servo down
+    gatherTableServo.setPosition(1);
   }
 
 
   void gatherUp()
   {
     //servo up
+    gatherTableServo.setPosition(0);
+  }
+
+  void gatherHold()
+  {
+    //servo set to hold stone
+    gatherReleaseServo.setPosition(1);
+  }
+
+
+  void gatherRelease()
+  {
+    //servo set to release stone
+    gatherReleaseServo.setPosition(0);
   }
 
   void gatherAbort()
@@ -141,28 +162,33 @@ public class ManipulatorPlatform
   }
 
 
-  void grab(boolean position)
+  void grabberGrab()
   {
-    if(position) // grab (1)
-    {
-      grabberServo.setPosition(1);
-    }
-    else
-    {
-      grabberServo.setPosition(0);
-    }
+    grabberServo.setPosition(1);
   }
 
 
-  void rotate(boolean position)
+  void grabberRelease()
   {
-    if(position) // rotated (1)
-    {
-      rotatorServo.setPosition(1);
-    }
-    else
-    {
-      rotatorServo.setPosition(0);
-    }
+    grabberServo.setPosition(0);
   }
+
+
+  void rotate0()
+  {
+    rotatorServo.setPosition(1);
+  }
+
+
+  void rotate90()
+  {
+    rotatorServo.setPosition(0);
+  }
+
+
+  boolean stonePresent()
+  {
+    return !stonePresentSensor.getState();
+  }
+
 }
