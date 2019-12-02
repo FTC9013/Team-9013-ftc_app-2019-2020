@@ -11,7 +11,7 @@ public class TeleOpPrimary extends LinearOpMode {
   // Declare OpMode members.
   private MecanumDriveChassis driveChassis;
   private ManipulatorPlatform manipulatorPlatform;
-  private LEDs leds;
+  // private LEDs leds;
 
   private final double highSpeed = 1.0;
   private final double lowSpeed = 0.5;
@@ -49,8 +49,8 @@ public class TeleOpPrimary extends LinearOpMode {
 
     driveChassis = new MecanumDriveChassis(hardwareMap);
     manipulatorPlatform = new ManipulatorPlatform(hardwareMap);
-    leds = new LEDs(hardwareMap);
-    leds.goOff();
+    //leds = new LEDs(hardwareMap);
+    //leds.goOff();
 
     // set dead zone to minimize unwanted stick input.
     gamepad1.setJoystickDeadzone((float)0.05);
@@ -61,7 +61,7 @@ public class TeleOpPrimary extends LinearOpMode {
     waitForStart();
     runtime.reset();
 
-    leds.goConfetti();  // start the LEDs in confetti
+    //leds.goConfetti();  // start the LEDs in confetti
 
     // run until the end of the match (driver presses STOP)
     while (opModeIsActive()) {
@@ -72,7 +72,7 @@ public class TeleOpPrimary extends LinearOpMode {
       if ( eventTimeOut( LEDTimeoutTime ) )
       {
         LEDTimeoutTime = eventTimer.time() + colorSpeed;  // load for next cycle
-        leds.goChangeColor();
+      //  leds.goChangeColor();
       }
 
       // send joystick inputs to the drive chassis
@@ -183,11 +183,11 @@ public class TeleOpPrimary extends LinearOpMode {
       if (gamepad2.left_bumper)
       {
         manipulatorPlatform.grabberGrab();
-        manipulatorPlatform.gatherRelease();
+        //manipulatorPlatform.gatherRelease();
       }
 
       // RIGHT BUMP – commands Servo3 (Hub 2, servo port 2) to open (1)
-      if (gamepad2.left_bumper)  // grab
+      if (gamepad2.right_bumper)  // grab
       {
         manipulatorPlatform.grabberRelease();
       }

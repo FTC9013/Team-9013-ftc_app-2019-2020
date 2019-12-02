@@ -43,8 +43,8 @@ public class ManipulatorPlatform
 
     gatherReleaseServo = hardwareMap.get(Servo.class, "grServo");
 
-    stonePresentSensor = hardwareMap.get(DigitalChannel.class, "spSensor");
-    stonePresentSensor.setMode(DigitalChannel.Mode.INPUT);
+    //stonePresentSensor = hardwareMap.get(DigitalChannel.class, "spSensor");
+    //stonePresentSensor.setMode(DigitalChannel.Mode.INPUT);
 
     gatherLeftMotor = (DcMotorEx)hardwareMap.get(DcMotor.class, "lGMotor");  //hub 2 port 0
     gatherRightMotor = (DcMotorEx)hardwareMap.get(DcMotor.class, "rGMotor");  //hub 2 port 0
@@ -82,12 +82,12 @@ public class ManipulatorPlatform
     if(direction) // spin to gather stones
     {
       gatherLeftMotor.setVelocity(2 * Math.PI, RADIANS); // radians/second
-      gatherRightMotor.setVelocity(2 * Math.PI, RADIANS);
+      gatherRightMotor.setVelocity(-2 * Math.PI, RADIANS);
     }
     else
     {
       gatherLeftMotor.setVelocity(-2 * Math.PI, RADIANS); // radians/second
-      gatherRightMotor.setVelocity(-2 * Math.PI, RADIANS);
+      gatherRightMotor.setVelocity(2 * Math.PI, RADIANS);
     }
   }
 
@@ -101,27 +101,27 @@ public class ManipulatorPlatform
   void gatherDown()
   {
     //servo down
-    gatherTableServo.setPosition(1);
+    gatherTableServo.setPosition(0);
   }
 
 
   void gatherUp()
   {
     //servo up
-    gatherTableServo.setPosition(0);
+    gatherTableServo.setPosition(1);
   }
 
   void gatherHold()
   {
     //servo set to hold stone
-    gatherReleaseServo.setPosition(1);
+    gatherReleaseServo.setPosition(0);
   }
 
 
   void gatherRelease()
   {
     //servo set to release stone
-    gatherReleaseServo.setPosition(0);
+    gatherReleaseServo.setPosition(1);
   }
 
   void gatherAbort()
