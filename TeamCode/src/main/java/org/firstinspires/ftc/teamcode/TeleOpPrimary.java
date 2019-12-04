@@ -17,25 +17,24 @@ public class TeleOpPrimary extends LinearOpMode {
   private final double lowSpeed = 0.5;
 
   private final int extenderRetracted  = 0;
-  private final int extenderExtended  = 500;
+  private final int extenderExtended  = 850;
 
   private final int elevatorDown  = 0;
-  private final int elevatorLevelOne    = 200;
-  private final int elevatorLevelTwo    = 400;
-  private final int elevatorLevelThree  = 600;
+  private final int elevatorLevelOne    = 100;
+  private final int elevatorLevelTwo    = 200;
+  private final int elevatorLevelThree  = 400;
 
   private final boolean suckStones = true;
   private final boolean spitStones = false;
 
   private boolean suckingStones = false;
-  private boolean spittingStones = false;
 
   private ElapsedTime runtime = new ElapsedTime();
   // a timer for the various automation activities.
   private ElapsedTime eventTimer = new ElapsedTime(ElapsedTime.Resolution.SECONDS);
 
   // the time to hold before allowing state change on button.
-  private final double stoneSpitRunTime = 5.0;
+  private final double stoneSpitRunTime = 2.5;
   private double stoneSpitTimeoutTime = 0;
   private boolean stoneSpitTimerRunning = false;
 
@@ -113,6 +112,7 @@ public class TeleOpPrimary extends LinearOpMode {
         manipulatorPlatform.gatherOn(suckStones);
         manipulatorPlatform.gatherDown();
         manipulatorPlatform.gatherHold();
+        suckingStones = true;
       }
 
       if (suckingStones && manipulatorPlatform.stonePresent())
@@ -120,6 +120,7 @@ public class TeleOpPrimary extends LinearOpMode {
         manipulatorPlatform.gatherOff();
         manipulatorPlatform.gatherUp();
         manipulatorPlatform.grabberRelease();
+        suckingStones = false;
       }
 
 
@@ -140,12 +141,14 @@ public class TeleOpPrimary extends LinearOpMode {
       if(stoneSpitTimerRunning && eventTimeOut(stoneSpitTimeoutTime))
       {
         manipulatorPlatform.gatherOff();
+        stoneSpitTimerRunning = false;
       }
 
 
       if (gamepad1.x)
       {
         manipulatorPlatform.gatherAbort();
+        suckingStones = false;
       }
 
 
@@ -182,14 +185,15 @@ public class TeleOpPrimary extends LinearOpMode {
       //   and,Release Stone (Hub 2, Servo5, Port 5) to open.
       if (gamepad2.left_bumper)
       {
-        manipulatorPlatform.grabberGrab();
-        //manipulatorPlatform.gatherRelease();
+        manipulatorPlatform.grabberRelease();
+        manipulatorPlatform.gatherHold();
       }
 
       // RIGHT BUMP – commands Servo3 (Hub 2, servo port 2) to open (1)
       if (gamepad2.right_bumper)  // grab
       {
-        manipulatorPlatform.grabberRelease();
+        manipulatorPlatform.grabberGrab();
+        manipulatorPlatform.gatherRelease();
       }
 
       // A – Commands Elevator motor (Hub 2, motor port 2) to Level 1 (encoder count X)

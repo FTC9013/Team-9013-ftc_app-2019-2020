@@ -41,10 +41,10 @@ public class AutonomousPrimary extends LinearOpMode {
     // distance: the distance to travel in inches
 
     Queue<Leg> leftPath = new LinkedList<>();
-    leftPath.add(new Leg(Leg.Mode.TURN_DRIVE, 40, 0, 0));
-    leftPath.add(new Leg(Leg.Mode.FORWARD, 40, 0, 20));
-    leftPath.add(new Leg(Leg.Mode.TURN_DRIVE, 60, 90, 0));
-    leftPath.add(new Leg(Leg.Mode.BACKWARDS, 40, 0, 15));
+    leftPath.add(new Leg(Leg.Mode.TURN_DRIVE, 20, 0, 0));
+    leftPath.add(new Leg(Leg.Mode.FORWARD, 20, 0, 20));
+    leftPath.add(new Leg(Leg.Mode.TURN_DRIVE, 20, 90, 0));
+    leftPath.add(new Leg(Leg.Mode.BACKWARDS, 20, 0, 15));
 
 
 

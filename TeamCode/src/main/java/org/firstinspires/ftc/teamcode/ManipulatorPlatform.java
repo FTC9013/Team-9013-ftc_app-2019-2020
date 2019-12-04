@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.hardware.rev.RevTouchSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
@@ -25,7 +26,7 @@ public class ManipulatorPlatform
   private Servo gatherTableServo = null;
   private Servo gatherReleaseServo = null;
 
-  private DigitalChannel stonePresentSensor = null;
+  private RevTouchSensor stonePresentSensor = null;
   
   ManipulatorPlatform(HardwareMap hardwareMap)
   {
@@ -43,8 +44,8 @@ public class ManipulatorPlatform
 
     gatherReleaseServo = hardwareMap.get(Servo.class, "grServo");
 
-    //stonePresentSensor = hardwareMap.get(DigitalChannel.class, "spSensor");
-    //stonePresentSensor.setMode(DigitalChannel.Mode.INPUT);
+    stonePresentSensor = hardwareMap.get(RevTouchSensor.class,"spSensor");
+
 
     gatherLeftMotor = (DcMotorEx)hardwareMap.get(DcMotor.class, "lGMotor");  //hub 2 port 0
     gatherRightMotor = (DcMotorEx)hardwareMap.get(DcMotor.class, "rGMotor");  //hub 2 port 0
@@ -188,7 +189,7 @@ public class ManipulatorPlatform
 
   boolean stonePresent()
   {
-    return !stonePresentSensor.getState();
+    return stonePresentSensor.isPressed();
   }
 
 }
