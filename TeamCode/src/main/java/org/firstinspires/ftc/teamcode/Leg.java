@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
-// mode:     {FORWARD, BACKWARDS, LEFT, RIGHT, TURN_DRIVE}
+// mode:     {FORWARD, BACKWARDS, TURN}
 // speed:    the drive speed from 0-100%
 // angle:    the desired angle of travel relative to the INITIAL ABSOLUTE bot position and
 //           orientation in DEGREES.
@@ -8,7 +8,7 @@ package org.firstinspires.ftc.teamcode;
 
 public class Leg
 {
-  public enum Mode {FORWARD, BACKWARDS, LEFT, RIGHT, TURN_DRIVE}
+  public enum Mode {FORWARD, BACKWARDS, TURN}
   public Mode mode;
   public double speed;
   public double angle;

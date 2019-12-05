@@ -14,6 +14,8 @@ public class AutonomousPrimary extends LinearOpMode {
 
   // Declare OpMode members.
   private MecanumDriveChassisAutonomous driveChassis;
+  private ManipulatorPlatform manipulatorPlatform;
+  private LEDs leds;
 
   private ElapsedTime runtime = new ElapsedTime(ElapsedTime.Resolution.SECONDS);
 
@@ -21,30 +23,37 @@ public class AutonomousPrimary extends LinearOpMode {
   private static final float mmFTCFieldWidth = (12 * 6) * mmPerInch;       // the width of the FTC field (from the center point to the outer panels)
   private static final float mmTargetHeight = (6) * mmPerInch; // the height of the center of the target image above the floor
 
-
+  private boolean extendedFlag = false;
+  
+  private final int extenderRetracted  = 0;
+  private final int extenderExtended  = 850;
 
   @Override
   public void runOpMode() {
 
     driveChassis = new MecanumDriveChassisAutonomous(hardwareMap);
-
+    manipulatorPlatform = new ManipulatorPlatform(hardwareMap);
+    leds = new LEDs(hardwareMap);
+    leds.goOff();
+  
     // build all the drive plans for drive by distance (to move the gold mineral)
     //
     // Each leg of the trip is added to the queue in this code block.
     // As the opmode runs, the queue sent to the drive base for execution.
     //
-    // mode:     {FORWARD, BACKWARDS, LEFT, RIGHT, TURN_DRIVE}
+    // mode:     {FORWARD, BACKWARDS, TURN_DRIVE}
     // speed:    the drive speed from 0-100%
-    // angle:    the desired angle of travel relative to the ZERO orientation in DEGREES
+    // angle:    Ignored in all but TURN mode:
+    //           the desired angle of travel relative to the ZERO orientation in DEGREES
     //           ZERO is where the bot was facing when the IMU calibrated.
     //           desired angle in degrees 0 to 360 CCW
-    // distance: the distance to travel in inches
+    // distance: Only used for FORWARD, BACKWARD modes:  the distance to travel in inches
 
     Queue<Leg> leftPath = new LinkedList<>();
-    leftPath.add(new Leg(Leg.Mode.TURN_DRIVE, 20, 0, 0));
-    leftPath.add(new Leg(Leg.Mode.FORWARD, 20, 0, 20));
-    leftPath.add(new Leg(Leg.Mode.TURN_DRIVE, 20, 90, 0));
-    leftPath.add(new Leg(Leg.Mode.BACKWARDS, 20, 0, 15));
+    leftPath.add(new Leg(Leg.Mode.TURN, 100, 90, 0));
+    leftPath.add(new Leg(Leg.Mode.TURN, 20, 0, 0));
+    leftPath.add(new Leg(Leg.Mode.TURN, 100, 270, 0));
+    leftPath.add(new Leg(Leg.Mode.FORWARD, 50, 0, 20));
 
 
 
@@ -59,13 +68,15 @@ public class AutonomousPrimary extends LinearOpMode {
 
     while (opModeIsActive())
     {
-
       // Process the drive chassis
       driveChassis.autoDrive( telemetry );
-
-
+      
+      if(runtime.time() > 20 && !extendedFlag)
+      {
+        extendedFlag = true;
+        manipulatorPlatform.extenderPosition(extenderExtended);
+      }
     }
-
-
+    
   }
 }

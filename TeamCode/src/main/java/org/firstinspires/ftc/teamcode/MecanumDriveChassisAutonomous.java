@@ -77,12 +77,13 @@ public class MecanumDriveChassisAutonomous
   private final int headdingAverageNumberOfSamples = 10;
 
   // number of encoder counts equal to one inch of forward travel
-  private final int countsPerDriveInch = 10000/117;
+  private final int countsPerDriveInch = 5000/117;
 
   // number of encoder counts equal to one inch of forward travel
   private  final int countsPerStrafeInch = 5000/51;
 
-  private final int closeEnough = 10;  // Encoder counts to call position close enough to target.
+  private final int closeEnoughEncoder = 10;  // Encoder counts to call position close enough to target.
+  private final double closeEnoughHeading = .01;  // Radians to call angle close enough to target.
 
   // how many counts the tracking motor (R. Front) needs to go for the current drive leg.
   private int targetCounts = 0;
@@ -266,7 +267,7 @@ public class MecanumDriveChassisAutonomous
 
     // the bot is not currently driving an active leg so if there is another one in the plan,
     // start it, otherwise the plan is done.
-    if( driveingAPlan && !isDriving() )
+    if( driveingAPlan && !( isDriving() || isTurning() ) )
     {
       nextLeg();
     }
@@ -392,8 +393,8 @@ public class MecanumDriveChassisAutonomous
 
     // check if close enough on either side of target value, and also look for
     // overrun of target.
-    if(abs( currentCount - targetCounts ) < closeEnough
-      || currentCount - targetCounts < closeEnough )
+    if(abs( currentCount - targetCounts ) < closeEnoughEncoder
+      || currentCount - targetCounts < closeEnoughEncoder)
     {
       // stop the motors
       vD = 0;
@@ -405,8 +406,23 @@ public class MecanumDriveChassisAutonomous
       return true;  // still moving
     }
   }
-
-
+  
+  /** Must be called from main loop repeatedly to know when the turn is completed.
+   * @returns true if the bot is still turning */
+  boolean isTurning()
+  {
+    // check if close enough on either side of target value.
+    if(abs( currentHeading - desiredHeading ) < closeEnoughHeading )
+    {
+      return false;  // at the target.
+    }
+    else
+    {
+      return true;  // still turning
+    }
+  }
+  
+  
   // Set up a new drive plan (list of drive legs)
   void startPlan(Queue<Leg> newPlan )
   {
@@ -436,17 +452,16 @@ public class MecanumDriveChassisAutonomous
           driveBackwards(currentLeg.speed/100, currentLeg.distance );
           break;
 
-        case LEFT:
-          strafeLeft(currentLeg.speed/100, currentLeg.distance );
-          break;
-
-        case RIGHT:
-          strafeRight(currentLeg.speed/100, currentLeg.distance );
-          break;
-
-        case TURN_DRIVE:
+//        case LEFT:
+//          strafeLeft(currentLeg.speed/100, currentLeg.distance );
+//          break;
+//
+//        case RIGHT:
+//          strafeRight(currentLeg.speed/100, currentLeg.distance );
+//          break;
+//
+        case TURN:
           turnToAbsoluteAngle(currentLeg.angle);
-          driveForward(currentLeg.speed/100, currentLeg.distance );
           break;
       }
     }
@@ -462,37 +477,29 @@ public class MecanumDriveChassisAutonomous
   void driveForward(double speed, double inches)
   {
     stopAndResetEncoders();
+    RunWithoutEncoders();
     targetCounts = (int) ( inches * countsPerDriveInch );
-    vD = speed;     // 0 to 1
+    vD = speed/.707;  // divide by 0.707 because thetaD is 0 and we want to range full speed.
     thetaD = 0;     // no translation, currentHeading still valid (assumed)
-    thetaD = thetaD - Math.PI / 2;  // adjust for bot orientation 90 degrees...
-    RunUsingEncoders();
   }
 
   void driveBackwards(double speed, double inches)
   {
     stopAndResetEncoders();
+    RunWithoutEncoders();
     targetCounts = - (int) ( inches * countsPerDriveInch );
-    vD = speed;     // 0 to 1
-    thetaD = Math.PI ;     // no translation, currentHeading still valid (assumed)
-    thetaD = thetaD - Math.PI / 2;  // adjust for bot orientation 90 degrees...
-    RunUsingEncoders();
+    vD = -speed/.707;     // 0 to 1
+    thetaD = 0;      // no translation, currentHeading still valid (assumed)
   }
 
   void strafeLeft(double speed, double inches)
   {
     stopAndResetEncoders();
-
-
-
   }
 
   void strafeRight(double speed, double inches)
   {
     stopAndResetEncoders();
-
-
-
   }
 
   void turnToAbsoluteAngle(double newDesiredHeading)
@@ -507,8 +514,15 @@ public class MecanumDriveChassisAutonomous
     rightFrontDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     rightRearDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
   }
-
-
+  
+  
+  void RunWithoutEncoders()
+  {
+    leftFrontDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+    leftRearDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+    rightFrontDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+    rightRearDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+  }
   void RunUsingEncoders()
   {
     leftFrontDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);

@@ -111,10 +111,10 @@ public class TeleOpPrimary extends LinearOpMode {
       if (gamepad1.a && !suckingStones && !spittingStones)
       {
         suckingStones = true;
+        manipulatorPlatform.elevatorPosition(elevatorLevelOne);
         manipulatorPlatform.gatherOn(suckStones);
         manipulatorPlatform.gatherDown();
         manipulatorPlatform.gatherHold();
-
       }
 
       if (suckingStones && manipulatorPlatform.stonePresent())
@@ -122,6 +122,8 @@ public class TeleOpPrimary extends LinearOpMode {
         manipulatorPlatform.gatherOff();
         manipulatorPlatform.gatherUp();
         manipulatorPlatform.grabberRelease();
+        manipulatorPlatform.extenderPosition(extenderRetracted);
+        manipulatorPlatform.elevatorPosition(elevatorDown);
         suckingStones = false;
       }
 
