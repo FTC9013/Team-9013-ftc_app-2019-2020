@@ -56,7 +56,9 @@ public class MecanumDriveChassisAutonomous
   // keeps track of the drive plan state
   private Queue<Leg> plan;
   private Leg currentLeg;
-  private boolean driveingAPlan = false;
+  private boolean drivingAPlan = false;
+  private boolean driving = false;
+  private boolean turning = false;
 
   // Robot speed scaling factor (% of joystick input to use)
   // applied uniformly across all joystick inputs to the JoystickToMotion() method.
@@ -267,19 +269,22 @@ public class MecanumDriveChassisAutonomous
 
     // the bot is not currently driving an active leg so if there is another one in the plan,
     // start it, otherwise the plan is done.
-    if( driveingAPlan && !( isDriving() || isTurning() ) )
+    if( drivingAPlan && !(driving || turning) )
     {
       nextLeg();
     }
-
+    
     // No more legs in plan.
-    if (!driveingAPlan)
+    if (!drivingAPlan)
     {
       // plan is done, no active plan.  Just stop the bot and keep it stopped.
       vD = 0;
       thetaD = 0;
     }
 
+    Turning();
+    Driving();
+    
     // Math out what to send to the motors and send it.
     // keeps sending even at stop.  ( 0 power to wheels )
     PowerToWheels();
@@ -386,39 +391,36 @@ public class MecanumDriveChassisAutonomous
    * Uses the right front motor encoder for crude distance measurements.
    * encoder is cleared and targetCounts is loaded with desired distance in counts at the start of
    * each leg.
-   * @returns true if the bot is still moving */
-  boolean isDriving()
+   *  */
+   void Driving()
+   {
+     if (driving)
+     {
+       int currentCount = rightFrontDrive.getCurrentPosition();
+    
+       // check if close enough on either side of target value, and also look for
+       // overrun of target.
+       if (abs(currentCount - targetCounts) < closeEnoughEncoder
+         || currentCount - targetCounts < closeEnoughEncoder)
+       {
+         // stop the motors
+         vD = 0;
+         thetaD = 0;
+         driving = false;
+       }
+     }
+   }
+   
+  //Must be called from main loop repeatedly to know when the turn is completed.
+  void Turning()
   {
-    int currentCount = rightFrontDrive.getCurrentPosition();
-
-    // check if close enough on either side of target value, and also look for
-    // overrun of target.
-    if(abs( currentCount - targetCounts ) < closeEnoughEncoder
-      || currentCount - targetCounts < closeEnoughEncoder)
+    if(turning)
     {
-      // stop the motors
-      vD = 0;
-      thetaD = 0;
-      return false;  // at the target.
-    }
-    else
-    {
-      return true;  // still moving
-    }
-  }
-  
-  /** Must be called from main loop repeatedly to know when the turn is completed.
-   * @returns true if the bot is still turning */
-  boolean isTurning()
-  {
-    // check if close enough on either side of target value.
-    if(abs( currentHeading - desiredHeading ) < closeEnoughHeading )
-    {
-      return false;  // at the target.
-    }
-    else
-    {
-      return true;  // still turning
+      // check if close enough on either side of target value.
+      if (abs(currentHeading - desiredHeading) < closeEnoughHeading)
+      {
+        turning = false;
+      }
     }
   }
   
@@ -429,7 +431,7 @@ public class MecanumDriveChassisAutonomous
     if( newPlan.size() !=0 )
     {
       this.plan = newPlan;
-      driveingAPlan = true;
+      drivingAPlan = true;
     }
   }
 
@@ -438,7 +440,7 @@ public class MecanumDriveChassisAutonomous
   boolean nextLeg()
   {
 
-    if(plan.size() !=0 && driveingAPlan)
+    if(plan.size() !=0 && drivingAPlan)
     {
       currentLeg = plan.remove();  // legs are removed as they are driven
 
@@ -468,14 +470,15 @@ public class MecanumDriveChassisAutonomous
     // no more path to drive.
     else
     {
-      driveingAPlan = false;
+      drivingAPlan = false;
     }
-    return driveingAPlan;
+    return drivingAPlan;
   }
 
 
   void driveForward(double speed, double inches)
   {
+    driving = true;
     stopAndResetEncoders();
     RunWithoutEncoders();
     targetCounts = (int) ( inches * countsPerDriveInch );
@@ -485,6 +488,7 @@ public class MecanumDriveChassisAutonomous
 
   void driveBackwards(double speed, double inches)
   {
+    driving = true;
     stopAndResetEncoders();
     RunWithoutEncoders();
     targetCounts = - (int) ( inches * countsPerDriveInch );
@@ -504,6 +508,7 @@ public class MecanumDriveChassisAutonomous
 
   void turnToAbsoluteAngle(double newDesiredHeading)
   {
+    turning = true;
     this.desiredHeading = newDesiredHeading / 180 * Math.PI;  // convert to RADIANS
   }
 
