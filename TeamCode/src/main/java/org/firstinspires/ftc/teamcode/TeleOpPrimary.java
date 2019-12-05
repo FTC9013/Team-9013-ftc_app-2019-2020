@@ -11,7 +11,7 @@ public class TeleOpPrimary extends LinearOpMode {
   // Declare OpMode members.
   private MecanumDriveChassis driveChassis;
   private ManipulatorPlatform manipulatorPlatform;
-  // private LEDs leds;
+  private LEDs leds;
 
   private final double highSpeed = 1.0;
   private final double lowSpeed = 0.5;
@@ -28,6 +28,7 @@ public class TeleOpPrimary extends LinearOpMode {
   private final boolean spitStones = false;
 
   private boolean suckingStones = false;
+  private boolean spittingStones = false;
 
   private ElapsedTime runtime = new ElapsedTime();
   // a timer for the various automation activities.
@@ -48,8 +49,8 @@ public class TeleOpPrimary extends LinearOpMode {
 
     driveChassis = new MecanumDriveChassis(hardwareMap);
     manipulatorPlatform = new ManipulatorPlatform(hardwareMap);
-    //leds = new LEDs(hardwareMap);
-    //leds.goOff();
+    leds = new LEDs(hardwareMap);
+    leds.goOff();
 
     // set dead zone to minimize unwanted stick input.
     gamepad1.setJoystickDeadzone((float)0.05);
@@ -107,12 +108,13 @@ public class TeleOpPrimary extends LinearOpMode {
       // Set the gatherer motors to collect.  Lowers the gather deck to the down position.
       // Looks for the stone to hit the limit switch then stops gathering and raises the
       // platform.
-      if (gamepad1.a && !suckingStones)
+      if (gamepad1.a && !suckingStones && !spittingStones)
       {
+        suckingStones = true;
         manipulatorPlatform.gatherOn(suckStones);
         manipulatorPlatform.gatherDown();
         manipulatorPlatform.gatherHold();
-        suckingStones = true;
+
       }
 
       if (suckingStones && manipulatorPlatform.stonePresent())
@@ -131,24 +133,28 @@ public class TeleOpPrimary extends LinearOpMode {
 
       // Spit the gathered stones out
       // runs the motors in reverse for some set time then stops the motors.
-      if (gamepad1.b && !stoneSpitTimerRunning)
+      if (gamepad1.b && !stoneSpitTimerRunning && !spittingStones)
       {
+        spittingStones = true;
         manipulatorPlatform.gatherOn(spitStones);
         stoneSpitTimeoutTime = eventTimer.time() + stoneSpitRunTime;
         stoneSpitTimerRunning = true;
       }
       // cancel the stone spiting...
-      if(stoneSpitTimerRunning && eventTimeOut(stoneSpitTimeoutTime))
+      if(spittingStones && eventTimeOut(stoneSpitTimeoutTime))
       {
         manipulatorPlatform.gatherOff();
         stoneSpitTimerRunning = false;
+        spittingStones = false;
       }
 
-
+      // abort gathering or spitting
       if (gamepad1.x)
       {
-        manipulatorPlatform.gatherAbort();
+        manipulatorPlatform.gatherAbort(); // motors off and table up
         suckingStones = false;
+        spittingStones = false;
+        stoneSpitTimerRunning = false;
       }
 
 
