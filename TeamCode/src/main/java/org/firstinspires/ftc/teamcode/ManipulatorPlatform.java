@@ -4,6 +4,7 @@ import com.qualcomm.hardware.rev.RevTouchSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcontroller.external.samples.SensorDigitalTouch;
@@ -15,8 +16,8 @@ public class ManipulatorPlatform
 {
   private DcMotorEx gatherLeftMotor = null;
   private DcMotorEx gatherRightMotor = null;
-  private DcMotor elevatorMotor = null;
-  private DcMotor extenderMotor = null;
+  private DcMotorEx elevatorMotor = null;
+  private DcMotorEx extenderMotor = null;
  
   private Servo latchLeftServo = null;
   private Servo latchRightServo = null;
@@ -26,7 +27,18 @@ public class ManipulatorPlatform
   private Servo gatherReleaseServo = null;
 
   private RevTouchSensor stonePresentSensor = null;
-  
+
+  static final double elevatorP = 5;
+  static final double elevatorI = 0;
+  static final double elevatorD = 0;
+  static final double elevatorF = 0;
+
+  static final double extenderP = 5;
+  static final double extenderI = 0;
+  static final double extenderD = 0;
+  static final double extenderF = 0;
+
+
   ManipulatorPlatform(HardwareMap hardwareMap)
   {
     // Initialize the hardware variables. Note that the strings used here as parameters
@@ -49,9 +61,9 @@ public class ManipulatorPlatform
     gatherLeftMotor = (DcMotorEx)hardwareMap.get(DcMotor.class, "lGMotor");  //hub 2 port 0
     gatherRightMotor = (DcMotorEx)hardwareMap.get(DcMotor.class, "rGMotor");  //hub 2 port 0
 
-    elevatorMotor = hardwareMap.get(DcMotor.class, "elMotor");  //hub 2 port 0
+    elevatorMotor = (DcMotorEx)hardwareMap.get(DcMotor.class, "elMotor");  //hub 2 port 0
 
-    extenderMotor = hardwareMap.get(DcMotor.class, "exMotor");  //hub 2 port 0
+    extenderMotor = (DcMotorEx)hardwareMap.get(DcMotor.class, "exMotor");  //hub 2 port 0
 
     gatherLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     gatherRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -61,6 +73,17 @@ public class ManipulatorPlatform
 
     gatherLeftMotor.setVelocity(0, RADIANS); // radians/second
     gatherRightMotor.setVelocity(0, RADIANS);
+
+
+
+    // get the PID coefficients for the RUN_USING_ENCODER  modes.
+    // PIDFCoefficients elevatorPIDOrig = elevatorMotor.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER);
+    // PIDFCoefficients extenderPIDOrig = extenderMotor.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER);
+
+    PIDFCoefficients elevatorPIDNew = new PIDFCoefficients( elevatorP, elevatorI, elevatorD, elevatorF );
+    PIDFCoefficients extenderPIDNew = new PIDFCoefficients( extenderP, extenderI, extenderD, extenderF );
+    elevatorMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, elevatorPIDNew);
+    extenderMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, extenderPIDNew);
 
     elevatorMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     elevatorMotor.setPower(0);
