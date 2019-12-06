@@ -61,10 +61,6 @@ public class ManipulatorPlatform
     gatherLeftMotor = (DcMotorEx)hardwareMap.get(DcMotor.class, "lGMotor");  //hub 2 port 0
     gatherRightMotor = (DcMotorEx)hardwareMap.get(DcMotor.class, "rGMotor");  //hub 2 port 0
 
-    elevatorMotor = (DcMotorEx)hardwareMap.get(DcMotor.class, "elMotor");  //hub 2 port 0
-
-    extenderMotor = (DcMotorEx)hardwareMap.get(DcMotor.class, "exMotor");  //hub 2 port 0
-
     gatherLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     gatherRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
@@ -82,21 +78,27 @@ public class ManipulatorPlatform
 
     PIDFCoefficients elevatorPIDNew = new PIDFCoefficients( elevatorP, elevatorI, elevatorD, elevatorF );
     PIDFCoefficients extenderPIDNew = new PIDFCoefficients( extenderP, extenderI, extenderD, extenderF );
-    elevatorMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, elevatorPIDNew);
-    extenderMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, extenderPIDNew);
 
+    elevatorMotor = (DcMotorEx)hardwareMap.get(DcMotor.class, "elMotor");  //hub 2 port 0
     elevatorMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-    elevatorMotor.setPower(0);
     elevatorMotor.setDirection(DcMotor.Direction.REVERSE);
+    elevatorMotor.setPower(0);
+    PIDFCoefficients elevatorPIDOrig = elevatorMotor.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER);
     elevatorMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    elevatorMotor.setPower(1);
     elevatorMotor.setTargetPosition(0);
+    elevatorMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, elevatorPIDNew);
     elevatorMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
+    extenderMotor = (DcMotorEx)hardwareMap.get(DcMotor.class, "exMotor");  //hub 2 port 0
     extenderMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-    extenderMotor.setPower(0);
     extenderMotor.setDirection(DcMotor.Direction.FORWARD);
+    extenderMotor.setPower(0);
+    PIDFCoefficients extenderrPIDOrig = extenderMotor.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER);
     extenderMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    extenderMotor.setPower(1);
     extenderMotor.setTargetPosition(0);
+    extenderMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, extenderPIDNew);
     extenderMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
   }
 
@@ -158,14 +160,12 @@ public class ManipulatorPlatform
 
   void elevatorPosition(int count)
   {
-    elevatorMotor.setPower(1);
     elevatorMotor.setTargetPosition(count);
   }
 
 
   void extenderPosition(int count)
   {
-    extenderMotor.setPower(1);
     extenderMotor.setTargetPosition(count);
   }
 
