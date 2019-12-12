@@ -10,6 +10,8 @@ import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.robotcontroller.external.samples.SensorDigitalTouch;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
+import static com.qualcomm.robotcore.hardware.MotorControlAlgorithm.LegacyPID;
+import static com.qualcomm.robotcore.hardware.MotorControlAlgorithm.PIDF;
 import static org.firstinspires.ftc.robotcore.external.navigation.AngleUnit.RADIANS;
 
 public class ManipulatorPlatform
@@ -28,12 +30,12 @@ public class ManipulatorPlatform
 
   private RevTouchSensor stonePresentSensor = null;
 
-  static final double elevatorP = 5;
+  static final double elevatorP = 10;
   static final double elevatorI = 0;
   static final double elevatorD = 0;
   static final double elevatorF = 0;
 
-  static final double extenderP = 5;
+  static final double extenderP = 10;
   static final double extenderI = 0;
   static final double extenderD = 0;
   static final double extenderF = 0;
@@ -70,49 +72,41 @@ public class ManipulatorPlatform
     gatherLeftMotor.setVelocity(0, RADIANS); // radians/second
     gatherRightMotor.setVelocity(0, RADIANS);
 
-
-
-    // get the PID coefficients for the RUN_USING_ENCODER  modes.
-    // PIDFCoefficients elevatorPIDOrig = elevatorMotor.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER);
-    // PIDFCoefficients extenderPIDOrig = extenderMotor.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER);
-
-    PIDFCoefficients elevatorPIDNew = new PIDFCoefficients( elevatorP, elevatorI, elevatorD, elevatorF );
-    PIDFCoefficients extenderPIDNew = new PIDFCoefficients( extenderP, extenderI, extenderD, extenderF );
+    PIDFCoefficients elevatorPIDNew = new PIDFCoefficients( elevatorP, elevatorI, elevatorD, elevatorF, PIDF );
+    PIDFCoefficients extenderPIDNew = new PIDFCoefficients( extenderP, extenderI, extenderD, extenderF, PIDF  );
 
     elevatorMotor = (DcMotorEx)hardwareMap.get(DcMotor.class, "elMotor");  //hub 2 port 0
     elevatorMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     elevatorMotor.setDirection(DcMotor.Direction.REVERSE);
     elevatorMotor.setPower(0);
-    PIDFCoefficients elevatorPIDOrig = elevatorMotor.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER);
     elevatorMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    elevatorMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     elevatorMotor.setPower(1);
     elevatorMotor.setTargetPosition(0);
-    elevatorMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, elevatorPIDNew);
-    elevatorMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+    elevatorMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_TO_POSITION, elevatorPIDNew);
 
     extenderMotor = (DcMotorEx)hardwareMap.get(DcMotor.class, "exMotor");  //hub 2 port 0
     extenderMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     extenderMotor.setDirection(DcMotor.Direction.FORWARD);
     extenderMotor.setPower(0);
-    PIDFCoefficients extenderrPIDOrig = extenderMotor.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER);
     extenderMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    extenderMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     extenderMotor.setPower(1);
     extenderMotor.setTargetPosition(0);
-    extenderMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, extenderPIDNew);
-    extenderMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+    extenderMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_TO_POSITION, extenderPIDNew);
   }
 
   void gatherOn(boolean direction)  // true = suck up stones
   {
     if(direction) // spin to gather stones
     {
-      gatherLeftMotor.setVelocity(2 * Math.PI, RADIANS); // radians/second
-      gatherRightMotor.setVelocity(-2 * Math.PI, RADIANS);
+      gatherLeftMotor.setVelocity(4 * Math.PI, RADIANS); // radians/second
+      gatherRightMotor.setVelocity(-4 * Math.PI, RADIANS);
     }
     else
     {
-      gatherLeftMotor.setVelocity(-2 * Math.PI, RADIANS); // radians/second
-      gatherRightMotor.setVelocity(2 * Math.PI, RADIANS);
+      gatherLeftMotor.setVelocity(-3 * Math.PI, RADIANS); // radians/second
+      gatherRightMotor.setVelocity(3 * Math.PI, RADIANS);
     }
   }
 

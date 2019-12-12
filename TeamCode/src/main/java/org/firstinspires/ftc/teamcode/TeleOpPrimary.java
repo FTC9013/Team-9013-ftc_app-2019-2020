@@ -30,14 +30,23 @@ public class TeleOpPrimary extends LinearOpMode {
   private boolean suckingStones = false;
   private boolean spittingStones = false;
 
+
   private ElapsedTime runtime = new ElapsedTime();
   // a timer for the various automation activities.
   private ElapsedTime eventTimer = new ElapsedTime(ElapsedTime.Resolution.SECONDS);
 
   // the time to hold before allowing state change on button.
   private final double stoneSpitRunTime = 2.5;
-  private double stoneSpitTimeoutTime = 0;
+  private double stoneSpitTimeoutTime = 0;  // stores the time the event should end
   private boolean stoneSpitTimerRunning = false;
+
+  // the time to hold to allow stone to settle flat then close holder.
+  private final double stoneSettleDelayTime = 0.5;
+  private double stoneSettleDelayTimeoutTime = 0;  // stores the time the event should end
+  private boolean stoneSettleDelayTimerRunning = false;
+  private final double stoneSettleTime = 0.25;
+  private double stoneSettleTimeoutTime = 0;  // stores the time the event should end
+  private boolean stoneSettleTimerRunning = false;
 
   private final double colorSpeed = 10; // change colors every 10 seconds
   private double LEDTimeoutTime = 0;
@@ -112,6 +121,7 @@ public class TeleOpPrimary extends LinearOpMode {
       {
         suckingStones = true;
         manipulatorPlatform.elevatorPosition(elevatorLevelOne);
+        manipulatorPlatform.extenderPosition(extenderRetracted);
         manipulatorPlatform.gatherOn(suckStones);
         manipulatorPlatform.gatherDown();
         manipulatorPlatform.gatherHold();
@@ -122,9 +132,26 @@ public class TeleOpPrimary extends LinearOpMode {
         manipulatorPlatform.gatherOff();
         manipulatorPlatform.gatherUp();
         manipulatorPlatform.grabberRelease();
-        manipulatorPlatform.extenderPosition(extenderRetracted);
         manipulatorPlatform.elevatorPosition(elevatorDown);
+        stoneSettleDelayTimerRunning = true;
+        stoneSettleDelayTimeoutTime = eventTimer.time() + stoneSettleDelayTime;
         suckingStones = false;
+      }
+
+      // wait for the gather to tip back up before settling the stone.
+      if(stoneSettleDelayTimerRunning && eventTimeOut(stoneSettleDelayTimeoutTime))
+      {
+        manipulatorPlatform.gatherRelease();
+        stoneSettleTimeoutTime = eventTimer.time() + stoneSettleTime;
+        stoneSettleTimerRunning = true;
+        stoneSettleDelayTimerRunning = false;
+      }
+
+      // let the stone settle in the holder after gather.
+      if(stoneSettleTimerRunning && eventTimeOut(stoneSettleTimeoutTime))
+      {
+        manipulatorPlatform.gatherHold();
+        stoneSettleTimerRunning = false;
       }
 
 
@@ -137,15 +164,17 @@ public class TeleOpPrimary extends LinearOpMode {
       // runs the motors in reverse for some set time then stops the motors.
       if (gamepad1.b && !stoneSpitTimerRunning && !spittingStones)
       {
+        suckingStones = false; // cancel any stone sucking...
         spittingStones = true;
         manipulatorPlatform.gatherOn(spitStones);
         stoneSpitTimeoutTime = eventTimer.time() + stoneSpitRunTime;
         stoneSpitTimerRunning = true;
       }
+
       // cancel the stone spiting...
       if(spittingStones && eventTimeOut(stoneSpitTimeoutTime))
       {
-        manipulatorPlatform.gatherOff();
+        manipulatorPlatform.gatherAbort(); // motors off and table up
         stoneSpitTimerRunning = false;
         spittingStones = false;
       }
