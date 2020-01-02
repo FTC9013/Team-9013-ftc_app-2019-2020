@@ -253,12 +253,10 @@ public class MecanumDriveChassis
    * PI/2  = to the left
    * 3PI/4 = 135 deg. backward and to the left
    * PI    = backwards
-   * <p>
    * -PI/4  (or) 7PI/4 = 45 deg. forward and to the right
    * -PI/2  (or) 6PI/4 = to the right
    * -3PI/4 (or) 5PI/4 = -135 deg. backward and to the left
    * -PI    (or) PI    = backwards
-   * <p>
    * vTheta rotation is also standard rotation about a positive Z axis pointing UP.
    * thus a positive vTheta will turn the bot CCW about its Z axis.
    **/

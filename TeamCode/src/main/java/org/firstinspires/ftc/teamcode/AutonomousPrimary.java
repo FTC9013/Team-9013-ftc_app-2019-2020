@@ -19,9 +19,10 @@ public class AutonomousPrimary extends LinearOpMode {
 
   private ElapsedTime runtime = new ElapsedTime(ElapsedTime.Resolution.SECONDS);
 
-  private static final float mmPerInch = 25.4f;
-  private static final float mmFTCFieldWidth = (12 * 6) * mmPerInch;       // the width of the FTC field (from the center point to the outer panels)
-  private static final float mmTargetHeight = (6) * mmPerInch; // the height of the center of the target image above the floor
+  // save for later
+  // private static final float mmPerInch = 25.4f;
+  // private static final float mmFTCFieldWidth = (12 * 6) * mmPerInch;       // the width of the FTC field (from the center point to the outer panels)
+  // private static final float mmTargetHeight = (6) * mmPerInch; // the height of the center of the target image above the floor
 
   private boolean extendedFlag = false;
   
@@ -36,18 +37,19 @@ public class AutonomousPrimary extends LinearOpMode {
     leds = new LEDs(hardwareMap);
     leds.goOff();
   
-    // build all the drive plans for drive by distance (to move the gold mineral)
+    // build all the drive plans for drive by distance (time in seconds)
     //
     // Each leg of the trip is added to the queue in this code block.
     // As the opmode runs, the queue sent to the drive base for execution.
     //
-    // mode:     {FORWARD, BACKWARDS, TURN_DRIVE}
-    // speed:    the drive speed from 0-100%
+    // mode:     {FORWARD, BACKWARDS, LEFT (strafe), RIGHT (strafe), TURN_DRIVE}
+    // speed:    the drive speed from 0-100%  (Slower speeds for longer times will be more precise)
     // angle:    Ignored in all but TURN mode:
     //           the desired angle of travel relative to the ZERO orientation in DEGREES
     //           ZERO is where the bot was facing when the IMU calibrated.
     //           desired angle in degrees 0 to 360 CCW
-    // distance: Only used for FORWARD, BACKWARD modes:  the distance to travel in inches
+    // distance: Only used for FORWARD, BACKWARD, LEFT, RIGHT, modes:  the TIME in seconds to run
+    //           the motors.
 
     Queue<Leg> leftPath = new LinkedList<>();
     leftPath.add(new Leg(Leg.Mode.TURN, 100, 90, 0));
