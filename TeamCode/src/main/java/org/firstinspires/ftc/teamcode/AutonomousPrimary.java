@@ -14,8 +14,8 @@ public class AutonomousPrimary extends LinearOpMode {
 
   // Declare OpMode members.
   private MecanumDriveChassisAutonomous driveChassis;
-  private ManipulatorPlatform manipulatorPlatform;
-  private LEDs leds;
+//  private ManipulatorPlatform manipulatorPlatform;
+//  private LEDs leds;
 
   private ElapsedTime runtime = new ElapsedTime(ElapsedTime.Resolution.SECONDS);
 
@@ -33,16 +33,16 @@ public class AutonomousPrimary extends LinearOpMode {
   public void runOpMode() {
 
     driveChassis = new MecanumDriveChassisAutonomous(hardwareMap);
-    manipulatorPlatform = new ManipulatorPlatform(hardwareMap);
-    leds = new LEDs(hardwareMap);
-    leds.goOff();
+//    manipulatorPlatform = new ManipulatorPlatform(hardwareMap);
+//    leds = new LEDs(hardwareMap);
+//    leds.goOff();
   
     // build all the drive plans for drive by distance (time in seconds)
     //
     // Each leg of the trip is added to the queue in this code block.
     // As the opmode runs, the queue sent to the drive base for execution.
     //
-    // mode:     {FORWARD, BACKWARDS, LEFT (strafe), RIGHT (strafe), TURN_DRIVE}
+    // mode:     {FORWARD, BACKWARDS, LEFT (strafe), RIGHT (strafe), TURN}
     // speed:    the drive speed from 0-100%  (Slower speeds for longer times will be more precise)
     // angle:    Ignored in all but TURN mode:
     //           the desired angle of travel relative to the ZERO orientation in DEGREES
@@ -51,11 +51,21 @@ public class AutonomousPrimary extends LinearOpMode {
     // distance: Only used for FORWARD, BACKWARD, LEFT, RIGHT, modes:  the TIME in seconds to run
     //           the motors.
 
-    Queue<Leg> leftPath = new LinkedList<>();
-    leftPath.add(new Leg(Leg.Mode.TURN, 100, 90, 0));
-    leftPath.add(new Leg(Leg.Mode.TURN, 20, 0, 0));
-    leftPath.add(new Leg(Leg.Mode.TURN, 100, 270, 0));
-    leftPath.add(new Leg(Leg.Mode.FORWARD, 50, 0, 20));
+    Queue<Leg> TestAllFunctions = new LinkedList<>();
+    TestAllFunctions.add(new Leg(Leg.Mode.FORWARD, 50, 0, 1));
+    TestAllFunctions.add(new Leg(Leg.Mode.TURN, 100, 90, 0));
+    TestAllFunctions.add(new Leg(Leg.Mode.FORWARD, 50, 0, 1));
+    TestAllFunctions.add(new Leg(Leg.Mode.TURN, 100, 180, 0));
+    TestAllFunctions.add(new Leg(Leg.Mode.FORWARD, 50, 0, 1));
+    TestAllFunctions.add(new Leg(Leg.Mode.TURN, 100, 270, 0));
+    TestAllFunctions.add(new Leg(Leg.Mode.FORWARD, 50, 0, 1));
+    TestAllFunctions.add(new Leg(Leg.Mode.TURN, 100, 0, 0));
+
+    //TestAllFunctions.add(new Leg(Leg.Mode.LEFT, 50, 0, 1));
+    //TestAllFunctions.add(new Leg(Leg.Mode.BACKWARDS, 50, 0, 1));
+    //TestAllFunctions.add(new Leg(Leg.Mode.RIGHT, 50, 0, 1));
+    //TestAllFunctions.add(new Leg(Leg.Mode.TURN, 50, 0, 0));
+
 
     Queue<Leg> ParkWallSideDepot = new LinkedList<>();
     ParkWallSideDepot.add(new Leg(Leg.Mode.TURN,10, 90, 0));
@@ -80,20 +90,18 @@ public class AutonomousPrimary extends LinearOpMode {
     runtime.reset();
 
     // load the path
-    driveChassis.startPlan(ParkBridgeSideBuild);
-
+    driveChassis.startPlan(TestAllFunctions);
 
     while (opModeIsActive())
     {
       // Process the drive chassis
       driveChassis.autoDrive( telemetry );
-      
-      if(runtime.time() > 20 && !extendedFlag)
+
+      // just an example, not likely the way one would use this in a state machine.
+      if(!driveChassis.isDriving())
       {
-        extendedFlag = true;
-        manipulatorPlatform.extenderPosition(extenderExtended);
+        // do something once driving has stopped
       }
     }
-    
   }
 }

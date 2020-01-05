@@ -61,15 +61,15 @@ public class MecanumDriveChassisAutonomous
   private Queue<Leg> plan;
   private Leg currentLeg;
   private boolean drivingAPlan = false;
-  private boolean driving = false;
-  private boolean turning = false;
+  private enum DriveState {IDLE, DRIVING, TURNING}
+  private DriveState driveState = DriveState.IDLE;
 
   // Robot speed scaling factor (% of joystick input to use)
   // applied uniformly across all joystick inputs to the JoystickToMotion() method.
   private double speedScale = 0;
 
   // PID for the heading
-  private final double propCoeff = 0.9;
+  private final double propCoeff = 2;
   private final double integCoeff = 0.0;
   private final double diffCoeff = 0.00;
   private final double OutputLowLimit = -1;
@@ -274,17 +274,20 @@ public class MecanumDriveChassisAutonomous
     // start it, otherwise the plan is done.
     if( drivingAPlan )
     {
-      if( driving )
+      switch (driveState)
       {
-        Driving();
-      }
-      else if( turning )
-      {
-        Turning();
-      }
-      else
-      {
-        nextLeg();
+        case DRIVING:
+          Driving();
+          break;
+
+        case TURNING:
+          Turning();
+          break;
+
+        case IDLE:
+        default:
+          nextLeg();
+          break;
       }
     }
     else // not driving a plan... probably because there are no more legs in plan.
@@ -403,6 +406,7 @@ public class MecanumDriveChassisAutonomous
     {
       this.plan = newPlan;
       drivingAPlan = true;
+      driveState = DriveState.IDLE;
     }
   }
 
@@ -457,7 +461,7 @@ public class MecanumDriveChassisAutonomous
        // stop the motors
        vD = 0;
        thetaD = 0;
-       driving = false;
+       driveState = DriveState.IDLE;
      }
    }
 
@@ -468,7 +472,7 @@ public class MecanumDriveChassisAutonomous
     // check if close enough on either side of target value.
     if (abs(currentHeading - desiredHeading) < closeEnoughHeading)
     {
-      turning = false;
+      driveState = DriveState.IDLE;
     }
   }
 
@@ -476,7 +480,7 @@ public class MecanumDriveChassisAutonomous
   void driveForward(double speed, double seconds)
   {
     driveTime = seconds;
-    driving = true;
+    driveState = DriveState.DRIVING;
     vD = speed/.707;  // divide by 0.707 because thetaD is 0 and we want to range full speed.
     driveTimer.reset();
     thetaD = 0;     // no translation, currentHeading still valid (assumed)
@@ -486,7 +490,7 @@ public class MecanumDriveChassisAutonomous
   void driveBackwards(double speed, double seconds)
   {
     driveTime = seconds;
-    driving = true;
+    driveState = DriveState.DRIVING;
     vD = -speed/.707;     // divide by 0.707 because thetaD is 0 and we want to range full speed.
     driveTimer.reset();
     thetaD = 0;      // no translation, currentHeading still valid (assumed)
@@ -496,27 +500,32 @@ public class MecanumDriveChassisAutonomous
   void strafeLeft(double speed, double seconds)
   {
     driveTime = seconds;
-    driving = true;
-    vD = -speed/.707;     // divide by 0.707 because thetaD is 0 and we want to range full speed.
-    driveTimer.reset();
-    thetaD = Math.PI/2;   // translation angle
-  }
-
-
-  void strafeRight(double speed, double seconds)
-  {
-    driveTime = seconds;
-    driving = true;
+    driveState = DriveState.DRIVING;
     vD = -speed/.707;     // divide by 0.707 because thetaD is 0 and we want to range full speed.
     driveTimer.reset();
     thetaD = -Math.PI/2;   // translation angle
   }
 
 
+  void strafeRight(double speed, double seconds)
+  {
+    driveTime = seconds;
+    driveState = DriveState.DRIVING;
+    vD = -speed/.707;     // divide by 0.707 because thetaD is 0 and we want to range full speed.
+    driveTimer.reset();
+    thetaD = Math.PI/2;   // translation angle
+  }
+
+
   void turnToAbsoluteAngle(double newDesiredHeading)
   {
-    turning = true;
+    driveState = DriveState.TURNING;
     this.desiredHeading = newDesiredHeading / 180 * Math.PI;  // convert to RADIANS
+  }
+
+  public boolean isDriving()
+  {
+    return this.drivingAPlan;
   }
 
 
