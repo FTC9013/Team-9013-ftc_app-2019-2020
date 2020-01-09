@@ -73,25 +73,25 @@ public class AutonomousPrimary extends LinearOpMode {
     Queue<Leg> Left = new LinkedList<>();
     Left.add(new Leg(Leg.Mode.LEFT,20, 0, 2 ));
 
-    Queue<Leg> FowardRight = new LinkedList<>();
-    FowardRight.add(new Leg(Leg.Mode.FORWARD,20,0,2));
-    FowardRight.add(new Leg(Leg.Mode.TURN,10,270,0));
-    FowardRight.add(new Leg(Leg.Mode.FORWARD,20,0,2));
+    Queue<Leg> ForwardRight = new LinkedList<>();
+    ForwardRight.add(new Leg(Leg.Mode.FORWARD,20,0,2));
+    ForwardRight.add(new Leg(Leg.Mode.TURN,10,270,0));
+    ForwardRight.add(new Leg(Leg.Mode.FORWARD,20,0,2));
 
     Queue<Leg> Right = new LinkedList<>();
     Right.add(new Leg(Leg.Mode.RIGHT,20, 0,2));
 
-    Queue<Leg> FowardLeft = new LinkedList<>();
-    FowardLeft.add(new Leg(Leg.Mode.FORWARD,20,0,2));
-    FowardLeft.add(new Leg(Leg.Mode.TURN,10,90,0));
-    FowardLeft.add(new Leg(Leg.Mode.FORWARD,20,0,2));
+    Queue<Leg> ForwardLeft = new LinkedList<>();
+    ForwardLeft.add(new Leg(Leg.Mode.FORWARD,20,0,2));
+    ForwardLeft.add(new Leg(Leg.Mode.TURN,10,90,0));
+    ForwardLeft.add(new Leg(Leg.Mode.FORWARD,20,0,2));
 
     // Wait for the game to start (driver presses PLAY)
     waitForStart();
     runtime.reset();
 
     // load the path
-    driveChassis.startPlan(FowardLeft);
+    driveChassis.startPlan(Forward);
 
     while (opModeIsActive())
     {
