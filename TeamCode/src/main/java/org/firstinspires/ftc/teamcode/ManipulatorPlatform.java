@@ -30,12 +30,12 @@ public class ManipulatorPlatform
 
   private RevTouchSensor stonePresentSensor = null;
 
-  static final double elevatorP = 10;
+  static final double elevatorP = 1;
   static final double elevatorI = 0;
   static final double elevatorD = 0;
   static final double elevatorF = 0;
 
-  static final double extenderP = 10;
+  static final double extenderP = 1;
   static final double extenderI = 0;
   static final double extenderD = 0;
   static final double extenderF = 0;
@@ -82,7 +82,7 @@ public class ManipulatorPlatform
     elevatorMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     elevatorMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     elevatorMotor.setPower(1);
-    elevatorMotor.setTargetPosition(0);
+    elevatorMotor.setTargetPosition(-10);
     elevatorMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_TO_POSITION, elevatorPIDNew);
 
     extenderMotor = (DcMotorEx)hardwareMap.get(DcMotor.class, "exMotor");  //hub 2 port 0
@@ -92,7 +92,7 @@ public class ManipulatorPlatform
     extenderMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     extenderMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     extenderMotor.setPower(1);
-    extenderMotor.setTargetPosition(0);
+    extenderMotor.setTargetPosition(-10);
     extenderMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_TO_POSITION, extenderPIDNew);
   }
 
@@ -181,13 +181,13 @@ public class ManipulatorPlatform
 
   void grabberGrab()
   {
-    grabberServo.setPosition(1);
+    grabberServo.setPosition(0);
   }
 
 
   void grabberRelease()
   {
-    grabberServo.setPosition(0);
+    grabberServo.setPosition(1);
   }
 
 

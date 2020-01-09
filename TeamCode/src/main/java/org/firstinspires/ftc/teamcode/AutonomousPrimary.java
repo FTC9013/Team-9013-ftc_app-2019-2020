@@ -80,16 +80,16 @@ public class AutonomousPrimary extends LinearOpMode {
     ParkWallSideBuild.add(new Leg(Leg.Mode.TURN, 100,0,22));
 
     Queue<Leg> ParkBridgeSideBuild = new LinkedList<>();
-    ParkBridgeSideBuild.add(new Leg(Leg.Mode.FORWARD,100,0,22));
-    ParkBridgeSideBuild.add(new Leg(Leg.Mode.TURN,10,270,0));
-    ParkBridgeSideBuild.add(new Leg(Leg.Mode.FORWARD,100,0,22));
+    ParkBridgeSideBuild.add(new Leg(Leg.Mode.FORWARD,35,0,2));
+    ParkBridgeSideBuild.add(new Leg(Leg.Mode.TURN,10,90,0));
+    ParkBridgeSideBuild.add(new Leg(Leg.Mode.FORWARD,35,0,2));
 
     // Wait for the game to start (driver presses PLAY)
     waitForStart();
     runtime.reset();
 
     // load the path
-    driveChassis.startPlan(TestAllFunctions);
+    driveChassis.startPlan(ParkBridgeSideBuild);
 
     while (opModeIsActive())
     {

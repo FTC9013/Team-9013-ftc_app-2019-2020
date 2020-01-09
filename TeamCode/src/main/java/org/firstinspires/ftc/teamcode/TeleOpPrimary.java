@@ -16,10 +16,10 @@ public class TeleOpPrimary extends LinearOpMode {
   private final double highSpeed = 1.0;
   private final double lowSpeed = 0.5;
 
-  private final int extenderRetracted  = 0;
+  private final int extenderRetracted  = -50;
   private final int extenderExtended  = 750;
 
-  private final int elevatorDown  = 0;
+  private final int elevatorDown  = -10;
   private final int elevatorLevelOne    = 100;
   private final int elevatorLevelTwo    = 200;
   private final int elevatorLevelThree  = 400;
@@ -125,6 +125,7 @@ public class TeleOpPrimary extends LinearOpMode {
         manipulatorPlatform.gatherOn(suckStones);
         manipulatorPlatform.gatherDown();
         manipulatorPlatform.gatherHold();
+        manipulatorPlatform.extenderPosition(extenderRetracted);
       }
 
       if (suckingStones && manipulatorPlatform.stonePresent())
