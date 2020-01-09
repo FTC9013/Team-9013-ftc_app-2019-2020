@@ -67,6 +67,9 @@ public class AutonomousPrimary extends LinearOpMode {
     //TestAllFunctions.add(new Leg(Leg.Mode.TURN, 50, 0, 0));
 
 // below are the different parking sequences
+    Queue<Leg> Forward = new LinkedList<>();
+    Forward.add(new Leg(Leg.Mode.FORWARD,20, 0, 2 ));
+
     Queue<Leg> Left = new LinkedList<>();
     Left.add(new Leg(Leg.Mode.LEFT,20, 0, 2 ));
 
