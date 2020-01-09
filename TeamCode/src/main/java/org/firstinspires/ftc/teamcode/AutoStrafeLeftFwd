@@ -67,20 +67,20 @@ public class AutoStrafeLeftFwd extends LinearOpMode {
         //TestAllFunctions.add(new Leg(Leg.Mode.TURN, 50, 0, 0));
 
 // below are the different parking sequences
-        Queue<Leg> ParkWallSideDepot = new LinkedList<>();
+        Queue<Leg> ParkWallSideRight = new LinkedList<>();
         ParkWallSideDepot.add(new Leg(Leg.Mode.RIGHT,20, 0, 1));
 
 
-        Queue<Leg> ParkBridgeSideDepot = new LinkedList<>();
+        Queue<Leg> ParkBridgeSideRight = new LinkedList<>();
         ParkBridgeSideDepot.add(new Leg(Leg.Mode.FORWARD,20,0,2));
         ParkBridgeSideDepot.add(new Leg(Leg.Mode.TURN,10,270,0));
         ParkBridgeSideDepot.add(new Leg(Leg.Mode.FORWARD,20,0,2));
 
-        Queue<Leg> ParkWallSideBuild = new LinkedList<>();
+        Queue<Leg> ParkWallSideLeft = new LinkedList<>();
         ParkWallSideBuild.add(new Leg(Leg.Mode.LEFT,20, 0,1));
 
 
-        Queue<Leg> ParkBridgeSideBuild = new LinkedList<>();
+        Queue<Leg> ParkBridgeSideLeft = new LinkedList<>();
         ParkBridgeSideBuild.add(new Leg(Leg.Mode.FORWARD,20,0,2));
         ParkBridgeSideBuild.add(new Leg(Leg.Mode.TURN,10,90,0));
         ParkBridgeSideBuild.add(new Leg(Leg.Mode.FORWARD,20,0,2));
@@ -90,7 +90,7 @@ public class AutoStrafeLeftFwd extends LinearOpMode {
         runtime.reset();
 
         // load the path
-        driveChassis.startPlan(ParkBridgeSideBuild);
+        driveChassis.startPlan(ParkBridgeSideLeft);
 
         while (opModeIsActive())
         {

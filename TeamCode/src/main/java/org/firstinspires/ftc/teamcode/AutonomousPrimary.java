@@ -84,12 +84,24 @@ public class AutonomousPrimary extends LinearOpMode {
     FowardLeft.add(new Leg(Leg.Mode.TURN,10,90,0));
     FowardLeft.add(new Leg(Leg.Mode.FORWARD,20,0,2));
 
+    Queue<Leg> Latch = new LinkedList<>();
+    Latch.add(new Leg(Leg.Mode.FORWARD, 20,0,2));
+    Latch.add(new Leg(Leg.Mode.RIGHT, 20,0,2));
+    Latch.add(new Leg(Leg.Mode.FORWARD, 20,0,1));
+    //Put Latch down here
+    Latch.add(new Leg(Leg.Mode.BACKWARDS, 20,0,3));
+    Latch.add(new Leg(Leg.Mode.RIGHT, 20,0,1));
+    //Put Latch up here
+    Latch.add(new Leg(Leg.Mode.LEFT, 20,0,5));
+
+
+
     // Wait for the game to start (driver presses PLAY)
     waitForStart();
     runtime.reset();
 
     // load the path
-    driveChassis.startPlan(FowardLeft);
+    driveChassis.startPlan(Left);
 
     while (opModeIsActive())
     {
