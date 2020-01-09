@@ -81,7 +81,6 @@ public class AutonomousPrimary extends LinearOpMode {
     Queue<Leg> Right = new LinkedList<>();
     Right.add(new Leg(Leg.Mode.RIGHT,20, 0,2));
 
-
     Queue<Leg> FowardLeft = new LinkedList<>();
     FowardLeft.add(new Leg(Leg.Mode.FORWARD,20,0,2));
     FowardLeft.add(new Leg(Leg.Mode.TURN,10,90,0));
