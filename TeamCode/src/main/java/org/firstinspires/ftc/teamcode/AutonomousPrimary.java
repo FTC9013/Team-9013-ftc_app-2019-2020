@@ -67,29 +67,29 @@ public class AutonomousPrimary extends LinearOpMode {
     //TestAllFunctions.add(new Leg(Leg.Mode.TURN, 50, 0, 0));
 
 // below are the different parking sequences
-    Queue<Leg> ParkWallSideDepot = new LinkedList<>();
-    ParkWallSideDepot.add(new Leg(Leg.Mode.RIGHT,20, 0, 1 ));
+    Queue<Leg> Left = new LinkedList<>();
+    Left.add(new Leg(Leg.Mode.RIGHT,20, 0, 1 ));
 
-    Queue<Leg> ParkBridgeSideDepot = new LinkedList<>();
-    ParkBridgeSideDepot.add(new Leg(Leg.Mode.FORWARD,20,0,2));
-    ParkBridgeSideDepot.add(new Leg(Leg.Mode.TURN,10,270,0));
-    ParkBridgeSideDepot.add(new Leg(Leg.Mode.FORWARD,20,0,2));
+    Queue<Leg> FowardRight = new LinkedList<>();
+    FowardRight.add(new Leg(Leg.Mode.FORWARD,20,0,2));
+    FowardRight.add(new Leg(Leg.Mode.TURN,10,270,0));
+    FowardRight.add(new Leg(Leg.Mode.FORWARD,20,0,2));
 
-    Queue<Leg> ParkWallSideBuild = new LinkedList<>();
-    ParkWallSideBuild.add(new Leg(Leg.Mode.TURN,20, 0,1));
+    Queue<Leg> Right = new LinkedList<>();
+    Right.add(new Leg(Leg.Mode.TURN,20, 0,1));
 
 
-    Queue<Leg> ParkBridgeSideBuild = new LinkedList<>();
-    ParkBridgeSideBuild.add(new Leg(Leg.Mode.FORWARD,20,0,2));
-    ParkBridgeSideBuild.add(new Leg(Leg.Mode.TURN,10,90,0));
-    ParkBridgeSideBuild.add(new Leg(Leg.Mode.FORWARD,20,0,2));
+    Queue<Leg> FowardLeft = new LinkedList<>();
+    FowardLeft.add(new Leg(Leg.Mode.FORWARD,20,0,2));
+    FowardLeft.add(new Leg(Leg.Mode.TURN,10,90,0));
+    FowardLeft.add(new Leg(Leg.Mode.FORWARD,20,0,2));
 
     // Wait for the game to start (driver presses PLAY)
     waitForStart();
     runtime.reset();
 
     // load the path
-    driveChassis.startPlan(ParkBridgeSideBuild);
+    driveChassis.startPlan(FowardLeft);
 
     while (opModeIsActive())
     {
