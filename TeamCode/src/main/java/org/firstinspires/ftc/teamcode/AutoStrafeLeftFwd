@@ -68,22 +68,22 @@ public class AutoStrafeLeftFwd extends LinearOpMode {
 
 // below are the different parking sequences
         Queue<Leg> ParkWallSideDepot = new LinkedList<>();
-        ParkWallSideDepot.add(new Leg(Leg.Mode.TURN,10, 90, 0));
-        ParkWallSideDepot.add(new Leg(Leg.Mode.FORWARD,100, 0, 22 ));
+        ParkWallSideDepot.add(new Leg(Leg.Mode.RIGHT,20, 0, 1));
+
 
         Queue<Leg> ParkBridgeSideDepot = new LinkedList<>();
-        ParkBridgeSideDepot.add(new Leg(Leg.Mode.FORWARD,100,0,22));
-        ParkBridgeSideDepot.add(new Leg(Leg.Mode.TURN,10,90,0));
-        ParkBridgeSideDepot.add(new Leg(Leg.Mode.FORWARD,100,0,22));
+        ParkBridgeSideDepot.add(new Leg(Leg.Mode.FORWARD,20,0,2));
+        ParkBridgeSideDepot.add(new Leg(Leg.Mode.TURN,10,270,0));
+        ParkBridgeSideDepot.add(new Leg(Leg.Mode.FORWARD,20,0,2));
 
         Queue<Leg> ParkWallSideBuild = new LinkedList<>();
-        ParkWallSideBuild.add(new Leg(Leg.Mode.TURN,10, 270,0));
-        ParkWallSideBuild.add(new Leg(Leg.Mode.TURN, 100,0,22));
+        ParkWallSideBuild.add(new Leg(Leg.Mode.LEFT,20, 0,1));
+
 
         Queue<Leg> ParkBridgeSideBuild = new LinkedList<>();
-        ParkBridgeSideBuild.add(new Leg(Leg.Mode.FORWARD,100,0,22));
-        ParkBridgeSideBuild.add(new Leg(Leg.Mode.TURN,10,270,0));
-        ParkBridgeSideBuild.add(new Leg(Leg.Mode.FORWARD,100,0,22));
+        ParkBridgeSideBuild.add(new Leg(Leg.Mode.FORWARD,20,0,2));
+        ParkBridgeSideBuild.add(new Leg(Leg.Mode.TURN,10,90,0));
+        ParkBridgeSideBuild.add(new Leg(Leg.Mode.FORWARD,20,0,2));
 
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
