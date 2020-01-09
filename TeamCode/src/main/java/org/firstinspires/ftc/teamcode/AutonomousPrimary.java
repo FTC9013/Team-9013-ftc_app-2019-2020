@@ -68,7 +68,7 @@ public class AutonomousPrimary extends LinearOpMode {
 
 // below are the different parking sequences
     Queue<Leg> Left = new LinkedList<>();
-    Left.add(new Leg(Leg.Mode.RIGHT,20, 0, 1 ));
+    Left.add(new Leg(Leg.Mode.RIGHT,20, 0, 2 ));
 
     Queue<Leg> FowardRight = new LinkedList<>();
     FowardRight.add(new Leg(Leg.Mode.FORWARD,20,0,2));
@@ -76,7 +76,7 @@ public class AutonomousPrimary extends LinearOpMode {
     FowardRight.add(new Leg(Leg.Mode.FORWARD,20,0,2));
 
     Queue<Leg> Right = new LinkedList<>();
-    Right.add(new Leg(Leg.Mode.TURN,20, 0,1));
+    Right.add(new Leg(Leg.Mode.TURN,20, 0,2));
 
 
     Queue<Leg> FowardLeft = new LinkedList<>();
