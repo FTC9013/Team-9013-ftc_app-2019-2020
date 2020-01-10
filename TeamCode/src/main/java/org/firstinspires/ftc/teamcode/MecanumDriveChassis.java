@@ -52,7 +52,7 @@ public class MecanumDriveChassis
 
   // Robot speed scaling factor (% of joystick input to use)
   // applied uniformly across all joystick inputs to the JoystickToMotion() method.
-  private double speedScale = 0;
+  private double speedScale = 0.5;
 
   // PID for the heading
   private final double propCoeff = 0.9;
@@ -66,7 +66,7 @@ public class MecanumDriveChassis
   private final double SetpointRange = 2 * Math.PI;
 
   private final double headingThreshold = 0.05;
-  private final int headdingAverageNumberOfSamples = 10;
+  private final int headdingAverageNumberOfSamples = 5;
 
   private PID headingPID = null;
   private RollingAverage averageHeading = null;
@@ -164,9 +164,10 @@ public class MecanumDriveChassis
   // Left  X = side to side (strafe)
   // Right X = rotate in place
   void drive(float driveLeftY, float driveLeftX, float driveRightX, Telemetry telemetry) {
-    telemetry.addData("Heading (rad) ", " %.4f", IMUTelemetry.heading);
-    telemetry.addData("Error (rad) ", " %.4f", IMUTelemetry.error);
-    telemetry.update();
+
+    //telemetry.addData("Heading (rad) ", " %.4f", IMUTelemetry.heading);
+    //telemetry.addData("Error (rad) ", " %.4f", IMUTelemetry.error);
+    //telemetry.update();
 
     // calculate the vectors multiply input values by scaling factor for max speed.
     joystickToMotion(driveLeftY * speedScale, driveLeftX * speedScale,

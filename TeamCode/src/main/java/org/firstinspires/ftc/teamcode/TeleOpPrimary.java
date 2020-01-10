@@ -16,10 +16,10 @@ public class TeleOpPrimary extends LinearOpMode {
   private final double highSpeed = 1.0;
   private final double lowSpeed = 0.5;
 
-  private final int extenderRetracted  = -50;
-  private final int extenderExtended  = 750;
+  private final int extenderRetracted  = 0;
+  private final int extenderExtended  = 600;
 
-  private final int elevatorDown  = -10;
+  private final int elevatorDown  = 00;
   private final int elevatorLevelOne    = 100;
   private final int elevatorLevelTwo    = 200;
   private final int elevatorLevelThree  = 400;
@@ -31,7 +31,7 @@ public class TeleOpPrimary extends LinearOpMode {
   private boolean spittingStones = false;
 
 
-  private ElapsedTime runtime = new ElapsedTime();
+  // private ElapsedTime runtime = new ElapsedTime();
   // a timer for the various automation activities.
   private ElapsedTime eventTimer = new ElapsedTime(ElapsedTime.Resolution.SECONDS);
 
@@ -52,7 +52,8 @@ public class TeleOpPrimary extends LinearOpMode {
   private double LEDTimeoutTime = 0;
 
   @Override
-  public void runOpMode() {
+  public void runOpMode()
+  {
     telemetry.addData("Status", "Initialized");
     telemetry.update();
 
@@ -68,13 +69,13 @@ public class TeleOpPrimary extends LinearOpMode {
 
     // Wait for the game to start (driver presses PLAY)
     waitForStart();
-    runtime.reset();
+    // runtime.reset();
 
     //leds.goConfetti();  // start the LEDs in confetti
 
     // run until the end of the match (driver presses STOP)
-    while (opModeIsActive()) {
-
+    while (opModeIsActive())
+    {
       //set up counter
 
       // steps through color sequences every 'colorSpeed' seconds.

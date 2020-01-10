@@ -69,7 +69,7 @@ public class MecanumDriveChassisAutonomous
   private double speedScale = 0;
 
   // PID for the heading
-  private final double propCoeff = 2;
+  private final double propCoeff = 1;
   private final double integCoeff = 0.0;
   private final double diffCoeff = 0.00;
   private final double OutputLowLimit = -1;

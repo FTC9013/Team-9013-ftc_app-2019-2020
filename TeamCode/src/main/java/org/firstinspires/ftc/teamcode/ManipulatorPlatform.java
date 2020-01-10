@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.hardware.rev.RevTouchSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -10,7 +11,6 @@ import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.robotcontroller.external.samples.SensorDigitalTouch;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
-import static com.qualcomm.robotcore.hardware.MotorControlAlgorithm.LegacyPID;
 import static com.qualcomm.robotcore.hardware.MotorControlAlgorithm.PIDF;
 import static org.firstinspires.ftc.robotcore.external.navigation.AngleUnit.RADIANS;
 
@@ -30,12 +30,12 @@ public class ManipulatorPlatform
 
   private RevTouchSensor stonePresentSensor = null;
 
-  static final double elevatorP = 1;
+  static final double elevatorP = 10;
   static final double elevatorI = 0;
   static final double elevatorD = 0;
   static final double elevatorF = 0;
 
-  static final double extenderP = 1;
+  static final double extenderP = 10;
   static final double extenderI = 0;
   static final double extenderD = 0;
   static final double extenderF = 0;
@@ -72,28 +72,33 @@ public class ManipulatorPlatform
     gatherLeftMotor.setVelocity(0, RADIANS); // radians/second
     gatherRightMotor.setVelocity(0, RADIANS);
 
-    PIDFCoefficients elevatorPIDNew = new PIDFCoefficients( elevatorP, elevatorI, elevatorD, elevatorF, PIDF );
-    PIDFCoefficients extenderPIDNew = new PIDFCoefficients( extenderP, extenderI, extenderD, extenderF, PIDF  );
+
 
     elevatorMotor = (DcMotorEx)hardwareMap.get(DcMotor.class, "elMotor");  //hub 2 port 0
     elevatorMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     elevatorMotor.setDirection(DcMotor.Direction.REVERSE);
     elevatorMotor.setPower(0);
+    PIDFCoefficients pidOrig = elevatorMotor.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER);
     elevatorMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-    elevatorMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     elevatorMotor.setPower(1);
-    elevatorMotor.setTargetPosition(-10);
-    elevatorMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_TO_POSITION, elevatorPIDNew);
+    elevatorMotor.setTargetPosition(0);
+    PIDFCoefficients elevatorPIDNew = new PIDFCoefficients( elevatorP, elevatorI, elevatorD, elevatorF );
+    elevatorMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, elevatorPIDNew);
+    elevatorMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
 
     extenderMotor = (DcMotorEx)hardwareMap.get(DcMotor.class, "exMotor");  //hub 2 port 0
     extenderMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     extenderMotor.setDirection(DcMotor.Direction.FORWARD);
     extenderMotor.setPower(0);
+    PIDFCoefficients pidOrig2 = extenderMotor.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER);
     extenderMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-    extenderMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     extenderMotor.setPower(1);
-    extenderMotor.setTargetPosition(-10);
-    extenderMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_TO_POSITION, extenderPIDNew);
+    extenderMotor.setTargetPosition(0);
+    PIDFCoefficients extenderPIDNew = new PIDFCoefficients( extenderP, extenderI, extenderD, extenderF );
+    extenderMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, extenderPIDNew);
+    extenderMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
   }
 
   void gatherOn(boolean direction)  // true = suck up stones
