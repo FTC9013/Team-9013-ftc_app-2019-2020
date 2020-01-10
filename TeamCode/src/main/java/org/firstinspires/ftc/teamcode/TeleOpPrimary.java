@@ -17,7 +17,7 @@ public class TeleOpPrimary extends LinearOpMode {
   private final double lowSpeed = 0.5;
 
   private final int extenderRetracted  = 0;
-  private final int extenderExtended  = 600;
+  private final int extenderExtended  = 700;
 
   private final int elevatorDown  = 00;
   private final int elevatorLevelOne    = 100;

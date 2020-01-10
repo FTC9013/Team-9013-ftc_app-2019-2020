@@ -14,10 +14,10 @@ public class AutonomousPrimary extends LinearOpMode {
 
   // Declare OpMode members.
   private MecanumDriveChassisAutonomous driveChassis;
-//  private ManipulatorPlatform manipulatorPlatform;
-//  private LEDs leds;
+  private ManipulatorPlatform manipulatorPlatform;
+  private LEDs leds;
 
-  private ElapsedTime runtime = new ElapsedTime(ElapsedTime.Resolution.SECONDS);
+  private ElapsedTime manipulateimer = new ElapsedTime(ElapsedTime.Resolution.SECONDS);
 
   // save for later
   // private static final float mmPerInch = 25.4f;
@@ -33,9 +33,9 @@ public class AutonomousPrimary extends LinearOpMode {
   public void runOpMode() {
 
     driveChassis = new MecanumDriveChassisAutonomous(hardwareMap);
-//    manipulatorPlatform = new ManipulatorPlatform(hardwareMap);
-//    leds = new LEDs(hardwareMap);
-//    leds.goOff();
+    manipulatorPlatform = new ManipulatorPlatform(hardwareMap);
+    leds = new LEDs(hardwareMap);
+    leds.goOff();
   
     // build all the drive plans for drive by distance (time in seconds)
     //
@@ -43,7 +43,8 @@ public class AutonomousPrimary extends LinearOpMode {
     // As the opmode runs, the queue sent to the drive base for execution.
     //
     // mode:     {FORWARD, BACKWARDS, LEFT (strafe), RIGHT (strafe), TURN}
-    // speed:    the drive speed from 0-100%  (Slower speeds for longer times will be more precise)
+    // speed:    Ignored in TURN mode: the drive speed from 0-100%  (Slower speeds for longer
+    //           times will be more precise)
     // angle:    Ignored in all but TURN mode:
     //           the desired angle of travel relative to the ZERO orientation in DEGREES
     //           ZERO is where the bot was facing when the IMU calibrated.
@@ -52,68 +53,79 @@ public class AutonomousPrimary extends LinearOpMode {
     //           the motors.
 
     Queue<Leg> TestAllFunctions = new LinkedList<>();
+    TestAllFunctions.add(new Leg(Leg.Mode.LEFT, 50, 0, 1));
+    TestAllFunctions.add(new Leg(Leg.Mode.RIGHT, 50, 0, 1));
     TestAllFunctions.add(new Leg(Leg.Mode.FORWARD, 50, 0, 1));
-    TestAllFunctions.add(new Leg(Leg.Mode.TURN, 100, 90, 0));
+    TestAllFunctions.add(new Leg(Leg.Mode.TURN, 50, 90, 0));
     TestAllFunctions.add(new Leg(Leg.Mode.FORWARD, 50, 0, 1));
-    TestAllFunctions.add(new Leg(Leg.Mode.TURN, 100, 180, 0));
+    TestAllFunctions.add(new Leg(Leg.Mode.TURN, 50, 180, 0));
     TestAllFunctions.add(new Leg(Leg.Mode.FORWARD, 50, 0, 1));
-    TestAllFunctions.add(new Leg(Leg.Mode.TURN, 100, 270, 0));
+    TestAllFunctions.add(new Leg(Leg.Mode.TURN, 50, 270, 0));
     TestAllFunctions.add(new Leg(Leg.Mode.FORWARD, 50, 0, 1));
-    TestAllFunctions.add(new Leg(Leg.Mode.TURN, 100, 0, 0));
+    TestAllFunctions.add(new Leg(Leg.Mode.TURN, 50, 0, 0));
+    TestAllFunctions.add(new Leg(Leg.Mode.LEFT, 50, 0, 1));
+    TestAllFunctions.add(new Leg(Leg.Mode.RIGHT, 50, 0, 1));
 
-    //TestAllFunctions.add(new Leg(Leg.Mode.LEFT, 50, 0, 1));
-    //TestAllFunctions.add(new Leg(Leg.Mode.BACKWARDS, 50, 0, 1));
-    //TestAllFunctions.add(new Leg(Leg.Mode.RIGHT, 50, 0, 1));
-    //TestAllFunctions.add(new Leg(Leg.Mode.TURN, 50, 0, 0));
 
-// below are the different parking sequences
+    Queue<Leg> LatchPt1 = new LinkedList<>();
+    LatchPt1.add(new Leg(Leg.Mode.FORWARD,20, 0,2));
+    LatchPt1.add(new Leg(Leg.Mode.RIGHT,20, 0,1));
+    LatchPt1.add(new Leg(Leg.Mode.FORWARD,20, 0,1));
 
-    Queue<Leg> Forward = new LinkedList<>();
-    Forward.add(new Leg(Leg.Mode.FORWARD,20, 0, 2 ));
-
-    Queue<Leg> Left = new LinkedList<>();
-    Left.add(new Leg(Leg.Mode.LEFT,20, 0, 2 ));
-
-    Queue<Leg> FowardRight = new LinkedList<>();
-    FowardRight.add(new Leg(Leg.Mode.FORWARD,20,0,2));
-    FowardRight.add(new Leg(Leg.Mode.TURN,10,270,0));
-    FowardRight.add(new Leg(Leg.Mode.FORWARD,20,0,2));
-
-    Queue<Leg> Right = new LinkedList<>();
-    Right.add(new Leg(Leg.Mode.RIGHT,20, 0,2));
-
-    Queue<Leg> FowardLeft = new LinkedList<>();
-    FowardLeft.add(new Leg(Leg.Mode.FORWARD,20,0,2));
-    FowardLeft.add(new Leg(Leg.Mode.TURN,10,90,0));
-    FowardLeft.add(new Leg(Leg.Mode.FORWARD,20,0,2));
-
-    Queue<Leg> Latch = new LinkedList<>();
-    Latch.add(new Leg(Leg.Mode.FORWARD,20, 0,2));
-    Latch.add(new Leg(Leg.Mode.RIGHT,20, 0,1));
-    Latch.add(new Leg(Leg.Mode.FORWARD,20, 0,1));
     // Latch down here.
-    Latch.add(new Leg(Leg.Mode.BACKWARDS,20, 0,3));
-    Latch.add(new Leg(Leg.Mode.RIGHT,20, 0,2));
+    Queue<Leg> LatchPt2 = new LinkedList<>();
+    LatchPt2.add(new Leg(Leg.Mode.BACKWARDS,20, 0,3));
+    LatchPt2.add(new Leg(Leg.Mode.RIGHT,20, 0,2));
+
     // Latch up here.
-    Latch.add(new Leg(Leg.Mode.LEFT,20, 0,5));
+    Queue<Leg> LatchPt3 = new LinkedList<>();
+    LatchPt3.add(new Leg(Leg.Mode.LEFT,20, 0,5));
 
     // Wait for the game to start (driver presses PLAY)
     waitForStart();
-    runtime.reset();
 
-    // load the path
-    driveChassis.startPlan(FowardLeft);
+    // for each piece of the drive & manipulate plan you will need to load a plan and then put
+    // a while loop, like the following example, that repeatedly calls the autoDrive method
+    // until the driving is done.
+    // Put manipulator movements between the driving loops.
+    // If you need more driving load another plan and make another loop.
 
-    while (opModeIsActive())
+    driveChassis.startPlan(LatchPt1);
+    while (opModeIsActive() && !driveChassis.isDriving())
     {
       // Process the drive chassis
-      driveChassis.autoDrive( telemetry );
+      driveChassis.autoDrive(telemetry);
+    }
 
-      // just an example, not likely the way one would use this in a state machine.
-      if(!driveChassis.isDriving())
-      {
-        // do something once driving has stopped
-      }
+    // After driving do your manipulation.  You may need a timer based state machine but simple
+    // actions can just be done inline.
+    manipulatorPlatform.latchPosition(true);  // latch
+    // spin for a second to allow latches to move.
+    manipulateimer.reset();
+    while (opModeIsActive() && manipulateimer.time()< 1.0);
+
+
+    // do second part of drive plan.
+    driveChassis.startPlan(LatchPt2);
+    while (opModeIsActive() && !driveChassis.isDriving())
+    {
+      // Process the drive chassis
+      driveChassis.autoDrive(telemetry);
+    }
+
+    // After driving do your manipulation.  You may need a timer based state machine but simple
+    // actions can just be done inline.
+    manipulatorPlatform.latchPosition(false);  // unlatch
+    // spin for a second to allow latches to move.
+    manipulateimer.reset();
+    while (opModeIsActive() && manipulateimer.time()< 1.0);
+
+    // do third part of drive plan.
+    driveChassis.startPlan(LatchPt3);
+    while (opModeIsActive() && !driveChassis.isDriving())
+    {
+      // Process the drive chassis
+      driveChassis.autoDrive(telemetry);
     }
   }
 }
