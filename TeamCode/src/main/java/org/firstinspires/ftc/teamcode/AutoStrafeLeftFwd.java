@@ -14,10 +14,10 @@ public class AutoStrafeLeftFwd extends LinearOpMode {
 
     // Declare OpMode members.
     private MecanumDriveChassisAutonomous driveChassis;
-//  private ManipulatorPlatform manipulatorPlatform;
-//  private LEDs leds;
+    private ManipulatorPlatform manipulatorPlatform;
+    private LEDs leds;
 
-    private ElapsedTime runtime = new ElapsedTime(ElapsedTime.Resolution.SECONDS);
+    private ElapsedTime manipulateimer = new ElapsedTime(ElapsedTime.Resolution.SECONDS);
 
     // save for later
     // private static final float mmPerInch = 25.4f;
@@ -27,15 +27,15 @@ public class AutoStrafeLeftFwd extends LinearOpMode {
     private boolean extendedFlag = false;
 
     private final int extenderRetracted  = 0;
-    private final int extenderExtended  = 850;
+    private final int extenderExtended  = 700;
 
     @Override
     public void runOpMode() {
 
         driveChassis = new MecanumDriveChassisAutonomous(hardwareMap);
-//    manipulatorPlatform = new ManipulatorPlatform(hardwareMap);
-//    leds = new LEDs(hardwareMap);
-//    leds.goOff();
+        manipulatorPlatform = new ManipulatorPlatform(hardwareMap);
+        leds = new LEDs(hardwareMap);
+        leds.goOff();
 
         // build all the drive plans for drive by distance (time in seconds)
         //
@@ -43,7 +43,8 @@ public class AutoStrafeLeftFwd extends LinearOpMode {
         // As the opmode runs, the queue sent to the drive base for execution.
         //
         // mode:     {FORWARD, BACKWARDS, LEFT (strafe), RIGHT (strafe), TURN}
-        // speed:    the drive speed from 0-100%  (Slower speeds for longer times will be more precise)
+        // speed:    Ignored in TURN mode: the drive speed from 0-100%  (Slower speeds for longer
+        //           times will be more precise)
         // angle:    Ignored in all but TURN mode:
         //           the desired angle of travel relative to the ZERO orientation in DEGREES
         //           ZERO is where the bot was facing when the IMU calibrated.
@@ -52,56 +53,40 @@ public class AutoStrafeLeftFwd extends LinearOpMode {
         //           the motors.
 
         Queue<Leg> TestAllFunctions = new LinkedList<>();
+        TestAllFunctions.add(new Leg(Leg.Mode.LEFT, 50, 0, 1));
+        TestAllFunctions.add(new Leg(Leg.Mode.RIGHT, 50, 0, 1));
         TestAllFunctions.add(new Leg(Leg.Mode.FORWARD, 50, 0, 1));
-        TestAllFunctions.add(new Leg(Leg.Mode.TURN, 100, 90, 0));
+        TestAllFunctions.add(new Leg(Leg.Mode.TURN, 50, 90, 0));
         TestAllFunctions.add(new Leg(Leg.Mode.FORWARD, 50, 0, 1));
-        TestAllFunctions.add(new Leg(Leg.Mode.TURN, 100, 180, 0));
+        TestAllFunctions.add(new Leg(Leg.Mode.TURN, 50, 180, 0));
         TestAllFunctions.add(new Leg(Leg.Mode.FORWARD, 50, 0, 1));
-        TestAllFunctions.add(new Leg(Leg.Mode.TURN, 100, 270, 0));
+        TestAllFunctions.add(new Leg(Leg.Mode.TURN, 50, 270, 0));
         TestAllFunctions.add(new Leg(Leg.Mode.FORWARD, 50, 0, 1));
-        TestAllFunctions.add(new Leg(Leg.Mode.TURN, 100, 0, 0));
-
-        //TestAllFunctions.add(new Leg(Leg.Mode.LEFT, 50, 0, 1));
-        //TestAllFunctions.add(new Leg(Leg.Mode.BACKWARDS, 50, 0, 1));
-        //TestAllFunctions.add(new Leg(Leg.Mode.RIGHT, 50, 0, 1));
-        //TestAllFunctions.add(new Leg(Leg.Mode.TURN, 50, 0, 0));
-
-// below are the different parking sequences
-        Queue<Leg> ParkWallSideRight = new LinkedList<>();
-        ParkWallSideDepot.add(new Leg(Leg.Mode.RIGHT,20, 0, 1));
-
-
-        Queue<Leg> ParkBridgeSideRight = new LinkedList<>();
-        ParkBridgeSideDepot.add(new Leg(Leg.Mode.FORWARD,20,0,2));
-        ParkBridgeSideDepot.add(new Leg(Leg.Mode.TURN,10,270,0));
-        ParkBridgeSideDepot.add(new Leg(Leg.Mode.FORWARD,20,0,2));
-
-        Queue<Leg> ParkWallSideLeft = new LinkedList<>();
-        ParkWallSideBuild.add(new Leg(Leg.Mode.LEFT,20, 0,1));
+        TestAllFunctions.add(new Leg(Leg.Mode.TURN, 50, 0, 0));
+        TestAllFunctions.add(new Leg(Leg.Mode.LEFT, 50, 0, 1));
+        TestAllFunctions.add(new Leg(Leg.Mode.RIGHT, 50, 0, 1));
 
 
         Queue<Leg> ParkBridgeSideLeft = new LinkedList<>();
-        ParkBridgeSideBuild.add(new Leg(Leg.Mode.FORWARD,20,0,2));
-        ParkBridgeSideBuild.add(new Leg(Leg.Mode.TURN,10,90,0));
-        ParkBridgeSideBuild.add(new Leg(Leg.Mode.FORWARD,20,0,2));
+        ParkBridgeSideLeft.add(new Leg(Leg.Mode.FORWARD,20,0,2));
+        ParkBridgeSideLeft.add(new Leg(Leg.Mode.TURN,10,90,0));
+        ParkBridgeSideLeft.add(new Leg(Leg.Mode.FORWARD,20,0,2));
+
 
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
-        runtime.reset();
 
-        // load the path
+        // for each piece of the drive & manipulate plan you will need to load a plan and then put
+        // a while loop, like the following example, that repeatedly calls the autoDrive method
+        // until the driving is done.
+        // Put manipulator movements between the driving loops.
+        // If you need more driving load another plan and make another loop.
+
         driveChassis.startPlan(ParkBridgeSideLeft);
-
-        while (opModeIsActive())
+        while (opModeIsActive() && !driveChassis.isDriving())
         {
             // Process the drive chassis
-            driveChassis.autoDrive( telemetry );
-
-            // just an example, not likely the way one would use this in a state machine.
-            if(!driveChassis.isDriving())
-            {
-                // do something once driving has stopped
-            }
+            driveChassis.autoDrive(telemetry);
         }
     }
 }
