@@ -48,6 +48,7 @@ public class TeleOpPrimary extends LinearOpMode {
   private double stoneSettleTimeoutTime = 0;  // stores the time the event should end
   private boolean stoneSettleTimerRunning = false;
 
+  
   private final double colorSpeed = 10; // change colors every 10 seconds
   private double LEDTimeoutTime = 0;
 
@@ -59,8 +60,8 @@ public class TeleOpPrimary extends LinearOpMode {
 
     driveChassis = new MecanumDriveChassis(hardwareMap);
     manipulatorPlatform = new ManipulatorPlatform(hardwareMap);
-    leds = new LEDs(hardwareMap);
-    leds.goOff();
+//    leds = new LEDs(hardwareMap);
+//    leds.goOff();
 
     // set dead zone to minimize unwanted stick input.
     gamepad1.setJoystickDeadzone((float)0.05);
@@ -104,13 +105,13 @@ public class TeleOpPrimary extends LinearOpMode {
       }
 
       // Closes the latches to drag the building platform.
-      if (gamepad1.left_bumper) // Latch
+      if (gamepad1.left_bumper) // UnLatch
       {
         manipulatorPlatform.latchPosition(true);
       }
 
       // Open the latches that drag the building platform
-      if (gamepad1.left_trigger > 0.5)  // Unlatch
+      if (gamepad1.left_trigger > 0.5)  // Latch
       {
         manipulatorPlatform.latchPosition(false);
       }
@@ -121,7 +122,6 @@ public class TeleOpPrimary extends LinearOpMode {
       if (gamepad1.a && !suckingStones && !spittingStones)
       {
         suckingStones = true;
-        manipulatorPlatform.elevatorPosition(elevatorLevelOne);
         manipulatorPlatform.extenderPosition(extenderRetracted);
         manipulatorPlatform.gatherOn(suckStones);
         manipulatorPlatform.gatherDown();
@@ -241,17 +241,17 @@ public class TeleOpPrimary extends LinearOpMode {
         manipulatorPlatform.elevatorPosition(elevatorLevelOne);
       }
 
-      // X – Commands Elevator motor (Hub 2, motor port 2) to Level 2 (encoder count Y)
-      if (gamepad2.x)
-      {
-        manipulatorPlatform.elevatorPosition(elevatorLevelTwo);
-      }
-
-      // Y – Commands Elevator motor (Hub 2, motor port 2) to Level 3 (encoder count Z)
-      if (gamepad2.y)
-      {
-        manipulatorPlatform.elevatorPosition(elevatorLevelThree);
-      }
+//      // X – Commands Elevator motor (Hub 2, motor port 2) to Level 2 (encoder count Y)
+//      if (gamepad2.x)
+//      {
+//        manipulatorPlatform.elevatorPosition(elevatorLevelTwo);
+//      }
+//
+//      // Y – Commands Elevator motor (Hub 2, motor port 2) to Level 3 (encoder count Z)
+//      if (gamepad2.y)
+//      {
+//        manipulatorPlatform.elevatorPosition(elevatorLevelThree);
+//      }
 
       // B – Commands Elevator motor (Hub 2, motor port 2) to Down/Home (encoder count 0)
       if (gamepad2.b)   // Extend

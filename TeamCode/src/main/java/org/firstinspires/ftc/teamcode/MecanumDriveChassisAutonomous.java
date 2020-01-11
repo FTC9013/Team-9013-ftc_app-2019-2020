@@ -79,7 +79,7 @@ public class MecanumDriveChassisAutonomous
   private final double OutputFilter = 0;
   private final double SetpointRange = 2*Math.PI;
 
-  private final double headingThreshold = 0.1;
+  private final double headingThreshold = 0.05;  // threshold to accept joystick input to change angle.
   private final int headdingAverageNumberOfSamples = 10;
 
   // number of encoder counts equal to one inch of forward travel
@@ -88,7 +88,7 @@ public class MecanumDriveChassisAutonomous
   // number of encoder counts equal to one inch of forward travel
   //  private  final int countsPerStrafeInch = 5000/51;
 
-  private final double closeEnoughHeading = .05;  // Radians to call angle close enough to target.
+  private final double closeEnoughHeading = 0.05;  // Radians to call angle close enough to target.
 
   // how many seconds to run the motors for the current drive leg.
   private double driveTime = 0;

@@ -71,7 +71,7 @@ public class AutonomousPrimaryLeft extends LinearOpMode
 
     Queue<Leg> LatchPt1 = new LinkedList<>();
     LatchPt1.add(new Leg(Leg.Mode.RIGHT, 50, 0, .7));
-    LatchPt1.add(new Leg(Leg.Mode.FORWARD,35, 0,2));
+    LatchPt1.add(new Leg(Leg.Mode.FORWARD,35, 0,2.1));
 
     // Latch down here.
     Queue<Leg> LatchPt2 = new LinkedList<>();

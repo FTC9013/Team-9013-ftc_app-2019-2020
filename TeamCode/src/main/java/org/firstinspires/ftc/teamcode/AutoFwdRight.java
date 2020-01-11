@@ -7,10 +7,10 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import java.util.LinkedList;
 import java.util.Queue;
 
-@Autonomous(name = "AutoFwd", group = "Linear Opmode")
+@Autonomous(name = "AutoFwdRight", group = "Linear Opmode")
 
 //@Disabled
-public class AutoFwd extends LinearOpMode {
+public class AutoFwdRight extends LinearOpMode {
 
     // Declare OpMode members.
     private MecanumDriveChassisAutonomous driveChassis;
@@ -68,6 +68,7 @@ public class AutoFwd extends LinearOpMode {
 
 
         Queue<Leg> ParkFwd = new LinkedList<>();
+      ParkFwd.add(new Leg(Leg.Mode.RIGHT,50,0,0.3));
       ParkFwd.add(new Leg(Leg.Mode.FORWARD,50,0,1.7));
 
 

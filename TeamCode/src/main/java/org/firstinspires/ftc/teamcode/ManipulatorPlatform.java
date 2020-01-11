@@ -3,15 +3,10 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.hardware.rev.RevTouchSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 
-import org.firstinspires.ftc.robotcontroller.external.samples.SensorDigitalTouch;
-import org.firstinspires.ftc.robotcore.external.Telemetry;
-
-import static com.qualcomm.robotcore.hardware.MotorControlAlgorithm.PIDF;
 import static org.firstinspires.ftc.robotcore.external.navigation.AngleUnit.RADIANS;
 
 public class ManipulatorPlatform
@@ -30,12 +25,12 @@ public class ManipulatorPlatform
 
   private RevTouchSensor stonePresentSensor = null;
 
-  static final double elevatorP = 75;
+  static final double elevatorP = 40;
   static final double elevatorI = 0;
   static final double elevatorD = 0;
   static final double elevatorF = 0;
 
-  static final double extenderP = 60;
+  static final double extenderP = 30;
   static final double extenderI = 0;
   static final double extenderD = 0;
   static final double extenderF = 0;
@@ -75,27 +70,23 @@ public class ManipulatorPlatform
 
 
     elevatorMotor = (DcMotorEx)hardwareMap.get(DcMotor.class, "elMotor");
-    elevatorMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     elevatorMotor.setDirection(DcMotor.Direction.REVERSE);
-    elevatorMotor.setPower(0);
-    elevatorMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-    elevatorMotor.setPower(1);
-    elevatorMotor.setTargetPosition(0);
     PIDFCoefficients elevatorPIDNew = new PIDFCoefficients( elevatorP, elevatorI, elevatorD, elevatorF );
-    elevatorMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, elevatorPIDNew);
+    elevatorMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_TO_POSITION, elevatorPIDNew);
+    elevatorMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    elevatorMotor.setTargetPosition(0);
     elevatorMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+    elevatorMotor.setPower(1);
 
 
     extenderMotor = (DcMotorEx)hardwareMap.get(DcMotor.class, "exMotor");
-    extenderMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     extenderMotor.setDirection(DcMotor.Direction.FORWARD);
-    extenderMotor.setPower(0);
-    extenderMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-    extenderMotor.setPower(1);
-    extenderMotor.setTargetPosition(0);
     PIDFCoefficients extenderPIDNew = new PIDFCoefficients( extenderP, extenderI, extenderD, extenderF );
-    extenderMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, extenderPIDNew);
+    extenderMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_TO_POSITION, extenderPIDNew);
+    extenderMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    extenderMotor.setTargetPosition(0);
     extenderMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+    extenderMotor.setPower(1);
 
   }
 
