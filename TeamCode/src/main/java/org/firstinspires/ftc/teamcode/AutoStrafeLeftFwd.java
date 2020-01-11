@@ -68,9 +68,9 @@ public class AutoStrafeLeftFwd extends LinearOpMode {
 
 
         Queue<Leg> ParkBridgeSideLeft = new LinkedList<>();
-        ParkBridgeSideLeft.add(new Leg(Leg.Mode.FORWARD,20,0,2));
-        ParkBridgeSideLeft.add(new Leg(Leg.Mode.TURN,10,90,0));
-        ParkBridgeSideLeft.add(new Leg(Leg.Mode.FORWARD,20,0,2));
+        ParkBridgeSideLeft.add(new Leg(Leg.Mode.FORWARD,50,0,1.25));
+        ParkBridgeSideLeft.add(new Leg(Leg.Mode.TURN,50,90,0));
+        ParkBridgeSideLeft.add(new Leg(Leg.Mode.FORWARD,50,0,1.7));
 
 
         // Wait for the game to start (driver presses PLAY)
@@ -83,7 +83,7 @@ public class AutoStrafeLeftFwd extends LinearOpMode {
         // If you need more driving load another plan and make another loop.
 
         driveChassis.startPlan(ParkBridgeSideLeft);
-        while (opModeIsActive() && !driveChassis.isDriving())
+        while (opModeIsActive() && driveChassis.isDriving())
         {
             // Process the drive chassis
             driveChassis.autoDrive(telemetry);

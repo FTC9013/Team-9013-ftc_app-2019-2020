@@ -69,7 +69,7 @@ public class MecanumDriveChassisAutonomous
   private double speedScale = 0;
 
   // PID for the heading
-  private final double propCoeff = 1;
+  private final double propCoeff = 1.5;
   private final double integCoeff = 0.0;
   private final double diffCoeff = 0.00;
   private final double OutputLowLimit = -1;
@@ -79,7 +79,7 @@ public class MecanumDriveChassisAutonomous
   private final double OutputFilter = 0;
   private final double SetpointRange = 2*Math.PI;
 
-  private final double headingThreshold = 0.05;
+  private final double headingThreshold = 0.1;
   private final int headdingAverageNumberOfSamples = 10;
 
   // number of encoder counts equal to one inch of forward travel

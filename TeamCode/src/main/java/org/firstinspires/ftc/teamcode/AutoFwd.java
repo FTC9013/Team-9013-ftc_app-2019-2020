@@ -7,10 +7,10 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import java.util.LinkedList;
 import java.util.Queue;
 
-@Autonomous(name = "AutoStrafeRightFwd", group = "Linear Opmode")
+@Autonomous(name = "AutoFwd", group = "Linear Opmode")
 
 //@Disabled
-public class AutoStrafeRightFwd extends LinearOpMode {
+public class AutoFwd extends LinearOpMode {
 
     // Declare OpMode members.
     private MecanumDriveChassisAutonomous driveChassis;
@@ -67,10 +67,8 @@ public class AutoStrafeRightFwd extends LinearOpMode {
         TestAllFunctions.add(new Leg(Leg.Mode.RIGHT, 50, 0, 1));
 
 
-        Queue<Leg> ParkBridgeSideRight = new LinkedList<>();
-        ParkBridgeSideRight.add(new Leg(Leg.Mode.FORWARD,50,0,1.25));
-        ParkBridgeSideRight.add(new Leg(Leg.Mode.TURN,50,270,0));
-        ParkBridgeSideRight.add(new Leg(Leg.Mode.FORWARD,50,0,1.7));
+        Queue<Leg> ParkFwd = new LinkedList<>();
+      ParkFwd.add(new Leg(Leg.Mode.FORWARD,50,0,1.7));
 
 
         // Wait for the game to start (driver presses PLAY)
@@ -82,7 +80,7 @@ public class AutoStrafeRightFwd extends LinearOpMode {
         // Put manipulator movements between the driving loops.
         // If you need more driving load another plan and make another loop.
 
-        driveChassis.startPlan(ParkBridgeSideRight);
+        driveChassis.startPlan(ParkFwd);
         while (opModeIsActive() && driveChassis.isDriving())
         {
             // Process the drive chassis

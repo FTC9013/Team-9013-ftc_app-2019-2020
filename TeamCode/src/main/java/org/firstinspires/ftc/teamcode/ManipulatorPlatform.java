@@ -30,12 +30,12 @@ public class ManipulatorPlatform
 
   private RevTouchSensor stonePresentSensor = null;
 
-  static final double elevatorP = 10;
+  static final double elevatorP = 75;
   static final double elevatorI = 0;
   static final double elevatorD = 0;
   static final double elevatorF = 0;
 
-  static final double extenderP = 10;
+  static final double extenderP = 60;
   static final double extenderI = 0;
   static final double extenderD = 0;
   static final double extenderF = 0;
@@ -60,8 +60,8 @@ public class ManipulatorPlatform
     stonePresentSensor = hardwareMap.get(RevTouchSensor.class,"spSensor");
 
 
-    gatherLeftMotor = (DcMotorEx)hardwareMap.get(DcMotor.class, "lGMotor");  //hub 2 port 0
-    gatherRightMotor = (DcMotorEx)hardwareMap.get(DcMotor.class, "rGMotor");  //hub 2 port 0
+    gatherLeftMotor = (DcMotorEx)hardwareMap.get(DcMotor.class, "lGMotor");
+    gatherRightMotor = (DcMotorEx)hardwareMap.get(DcMotor.class, "rGMotor");
 
     gatherLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     gatherRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -78,7 +78,6 @@ public class ManipulatorPlatform
     elevatorMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     elevatorMotor.setDirection(DcMotor.Direction.REVERSE);
     elevatorMotor.setPower(0);
-    //PIDFCoefficients pidOrig = elevatorMotor.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER);
     elevatorMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     elevatorMotor.setPower(1);
     elevatorMotor.setTargetPosition(0);
@@ -91,7 +90,6 @@ public class ManipulatorPlatform
     extenderMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     extenderMotor.setDirection(DcMotor.Direction.FORWARD);
     extenderMotor.setPower(0);
-    //PIDFCoefficients pidOrig2 = extenderMotor.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER);
     extenderMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     extenderMotor.setPower(1);
     extenderMotor.setTargetPosition(0);

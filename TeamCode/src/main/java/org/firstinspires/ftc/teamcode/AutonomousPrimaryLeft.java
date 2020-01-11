@@ -70,19 +70,24 @@ public class AutonomousPrimaryLeft extends LinearOpMode
 
 
     Queue<Leg> LatchPt1 = new LinkedList<>();
-    LatchPt1.add(new Leg(Leg.Mode.FORWARD,20, 0,2));
-    LatchPt1.add(new Leg(Leg.Mode.LEFT,20, 0,1));
-    LatchPt1.add(new Leg(Leg.Mode.FORWARD,20, 0,1));
+    LatchPt1.add(new Leg(Leg.Mode.RIGHT, 50, 0, .7));
+    LatchPt1.add(new Leg(Leg.Mode.FORWARD,35, 0,2));
 
     // Latch down here.
     Queue<Leg> LatchPt2 = new LinkedList<>();
-    LatchPt2.add(new Leg(Leg.Mode.BACKWARDS,20, 0,3));
-    LatchPt2.add(new Leg(Leg.Mode.LEFT,20, 0,2));
-
+    LatchPt2.add(new Leg(Leg.Mode.TURN, 50, 10, 0));
+    LatchPt2.add(new Leg(Leg.Mode.BACKWARDS,35, 0,1.5));
+    LatchPt2.add(new Leg(Leg.Mode.TURN, 50, 0, 0));
+    LatchPt2.add(new Leg(Leg.Mode.BACKWARDS,35, 0,1.0));
+    LatchPt2.add(new Leg(Leg.Mode.FORWARD,35, 0,0.3));
+  
     // Latch up here.
     Queue<Leg> LatchPt3 = new LinkedList<>();
-    LatchPt3.add(new Leg(Leg.Mode.RIGHT,20, 0,5));
-
+    LatchPt3.add(new Leg(Leg.Mode.BACKWARDS,35, 0,0.2));
+    LatchPt3.add(new Leg(Leg.Mode.LEFT, 50, 0, 2.25));
+    LatchPt3.add(new Leg(Leg.Mode.FORWARD,35, 0,0.5));
+    LatchPt3.add(new Leg(Leg.Mode.LEFT, 50, 0, 1.3));
+    
     // Wait for the game to start (driver presses PLAY)
     waitForStart();
 
@@ -91,9 +96,10 @@ public class AutonomousPrimaryLeft extends LinearOpMode
     // until the driving is done.
     // Put manipulator movements between the driving loops.
     // If you need more driving load another plan and make another loop.
-
+    manipulatorPlatform.latchPosition(true);  // unlatch
+    
     driveChassis.startPlan(LatchPt1);
-    while (opModeIsActive() && !driveChassis.isDriving())
+    while (opModeIsActive() && driveChassis.isDriving())
     {
       // Process the drive chassis
       driveChassis.autoDrive(telemetry);
@@ -101,7 +107,7 @@ public class AutonomousPrimaryLeft extends LinearOpMode
 
     // After driving do your manipulation.  You may need a timer based state machine but simple
     // actions can just be done inline.
-    manipulatorPlatform.latchPosition(true);  // latch
+    manipulatorPlatform.latchPosition(false);  // latch
     // spin for a second to allow latches to move.
     manipulateimer.reset();
     while (opModeIsActive() && manipulateimer.time()< 1.0);
@@ -109,7 +115,7 @@ public class AutonomousPrimaryLeft extends LinearOpMode
 
     // do second part of drive plan.
     driveChassis.startPlan(LatchPt2);
-    while (opModeIsActive() && !driveChassis.isDriving())
+    while (opModeIsActive() && driveChassis.isDriving())
     {
       // Process the drive chassis
       driveChassis.autoDrive(telemetry);
@@ -117,14 +123,14 @@ public class AutonomousPrimaryLeft extends LinearOpMode
 
     // After driving do your manipulation.  You may need a timer based state machine but simple
     // actions can just be done inline.
-    manipulatorPlatform.latchPosition(false);  // unlatch
+    manipulatorPlatform.latchPosition(true);  // unlatch
     // spin for a second to allow latches to move.
     manipulateimer.reset();
     while (opModeIsActive() && manipulateimer.time()< 1.0);
 
     // do third part of drive plan.
     driveChassis.startPlan(LatchPt3);
-    while (opModeIsActive() && !driveChassis.isDriving())
+    while (opModeIsActive() && driveChassis.isDriving())
     {
       // Process the drive chassis
       driveChassis.autoDrive(telemetry);
