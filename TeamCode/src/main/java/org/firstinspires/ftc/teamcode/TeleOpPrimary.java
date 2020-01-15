@@ -95,12 +95,12 @@ public class TeleOpPrimary extends LinearOpMode {
       // provide a throttle capability to run the bot at one of two speeds.
       if (gamepad1.right_trigger > 0.5 && goingFast )  // Go fast
       {
-        driveChassis.setSpeedScale(lowSpeed);
+        driveChassis.setSpeedScale(highSpeed);
         goingFast = false;
       }
       else if (gamepad1.right_trigger < 0.5 && !goingFast)
       {
-        driveChassis.setSpeedScale(highSpeed);
+        driveChassis.setSpeedScale(lowSpeed);
         goingFast = true;
       }
 
