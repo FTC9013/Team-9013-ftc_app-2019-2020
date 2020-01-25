@@ -21,8 +21,9 @@ public class TeleOpPrimary extends LinearOpMode {
 
   private final int elevatorDown  = 00;
   private final int elevatorLevelOne    = 100;
-  private final int elevatorLevelTwo    = 200;
-  private final int elevatorLevelThree  = 400;
+  private final int elevatorLevelTwo    = 450;
+  private final int elevatorLevelThree  = 1000;
+
 
   private final boolean suckStones = true;
   private final boolean spitStones = false;
@@ -241,17 +242,17 @@ public class TeleOpPrimary extends LinearOpMode {
         manipulatorPlatform.elevatorPosition(elevatorLevelOne);
       }
 
-//      // X – Commands Elevator motor (Hub 2, motor port 2) to Level 2 (encoder count Y)
-//      if (gamepad2.x)
-//      {
-//        manipulatorPlatform.elevatorPosition(elevatorLevelTwo);
-//      }
-//
-//      // Y – Commands Elevator motor (Hub 2, motor port 2) to Level 3 (encoder count Z)
-//      if (gamepad2.y)
-//      {
-//        manipulatorPlatform.elevatorPosition(elevatorLevelThree);
-//      }
+      // X – Commands Elevator motor (Hub 2, motor port 2) to Level 2 (encoder count Y)
+      if (gamepad2.x)
+      {
+        manipulatorPlatform.elevatorPosition(elevatorLevelTwo);
+      }
+
+      // Y – Commands Elevator motor (Hub 2, motor port 2) to Level 3 (encoder count Z)
+      if (gamepad2.y)
+      {
+        manipulatorPlatform.elevatorPosition(elevatorLevelThree);
+      }
 
       // B – Commands Elevator motor (Hub 2, motor port 2) to Down/Home (encoder count 0)
       if (gamepad2.b)   // Extend

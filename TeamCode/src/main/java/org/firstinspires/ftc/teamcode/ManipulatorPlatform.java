@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.hardware.rev.RevTouchSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -30,7 +31,7 @@ public class ManipulatorPlatform
   static final double elevatorD = 0;
   static final double elevatorF = 0;
 
-  static final double extenderP = 30;
+  static final double extenderP = 20;
   static final double extenderI = 0;
   static final double extenderD = 0;
   static final double extenderF = 0;
@@ -70,7 +71,7 @@ public class ManipulatorPlatform
 
 
     elevatorMotor = (DcMotorEx)hardwareMap.get(DcMotor.class, "elMotor");
-    elevatorMotor.setDirection(DcMotor.Direction.REVERSE);
+    elevatorMotor.setDirection(DcMotor.Direction.FORWARD);
     PIDFCoefficients elevatorPIDNew = new PIDFCoefficients( elevatorP, elevatorI, elevatorD, elevatorF );
     elevatorMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_TO_POSITION, elevatorPIDNew);
     elevatorMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
