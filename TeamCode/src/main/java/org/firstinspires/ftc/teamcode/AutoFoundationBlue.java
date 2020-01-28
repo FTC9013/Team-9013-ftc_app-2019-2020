@@ -31,8 +31,7 @@ public class AutoFoundationBlue extends LinearOpMode
   private final int extenderExtended  = 850;
 
   @Override
-  public void runOpMode()
-  {
+  public void runOpMode() {
 
     driveChassis = new MecanumDriveChassisAutonomous(hardwareMap);
     manipulatorPlatform = new ManipulatorPlatform(hardwareMap);
@@ -67,15 +66,16 @@ public class AutoFoundationBlue extends LinearOpMode
     TestAllFunctions.add(new Leg(Leg.Mode.TURN, 50, 0, 0));
     TestAllFunctions.add(new Leg(Leg.Mode.LEFT, 50, 0, 1));
     TestAllFunctions.add(new Leg(Leg.Mode.RIGHT, 50, 0, 1));
-
-
+  
+  
+  
     Queue<Leg> LatchPt1 = new LinkedList<>();
-    LatchPt1.add(new Leg(Leg.Mode.RIGHT, 50, 0, .7));
-    LatchPt1.add(new Leg(Leg.Mode.FORWARD,35, 0,2.1));
-
+    LatchPt1.add(new Leg(Leg.Mode.LEFT, 50, 0, .7));
+    LatchPt1.add(new Leg(Leg.Mode.FORWARD,35, 0,2));
+  
     // Latch down here.
     Queue<Leg> LatchPt2 = new LinkedList<>();
-    LatchPt2.add(new Leg(Leg.Mode.TURN, 50, 10, 0));
+    LatchPt2.add(new Leg(Leg.Mode.TURN, 50, 350, 0));
     LatchPt2.add(new Leg(Leg.Mode.BACKWARDS,35, 0,1.5));
     LatchPt2.add(new Leg(Leg.Mode.TURN, 50, 0, 0));
     LatchPt2.add(new Leg(Leg.Mode.BACKWARDS,35, 0,1.0));
@@ -84,10 +84,10 @@ public class AutoFoundationBlue extends LinearOpMode
     // Latch up here.
     Queue<Leg> LatchPt3 = new LinkedList<>();
     LatchPt3.add(new Leg(Leg.Mode.BACKWARDS,35, 0,0.2));
-    LatchPt3.add(new Leg(Leg.Mode.LEFT, 50, 0, 2.25));
+    LatchPt3.add(new Leg(Leg.Mode.RIGHT, 50, 0, 2.25));
     LatchPt3.add(new Leg(Leg.Mode.FORWARD,35, 0,0.5));
-    LatchPt3.add(new Leg(Leg.Mode.LEFT, 50, 0, 1.3));
-    
+    LatchPt3.add(new Leg(Leg.Mode.RIGHT, 50, 0, 1.3));
+
     // Wait for the game to start (driver presses PLAY)
     waitForStart();
 
