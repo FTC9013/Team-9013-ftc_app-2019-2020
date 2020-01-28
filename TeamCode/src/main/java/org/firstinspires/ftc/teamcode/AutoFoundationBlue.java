@@ -7,10 +7,10 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import java.util.LinkedList;
 import java.util.Queue;
 
-@Autonomous(name = "AutonomousPrimaryLeft", group = "Linear Opmode")
+@Autonomous(name = "AutoFoundationBlue", group = "Linear Opmode")
 
 //@Disabled
-public class AutonomousPrimaryLeft extends LinearOpMode
+public class AutoFoundationBlue extends LinearOpMode
 {
 
   // Declare OpMode members.

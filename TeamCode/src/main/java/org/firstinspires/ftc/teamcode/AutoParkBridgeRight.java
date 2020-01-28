@@ -7,10 +7,10 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import java.util.LinkedList;
 import java.util.Queue;
 
-@Autonomous(name = "AutoStrafeRightFwd", group = "Linear Opmode")
+@Autonomous(name = "AutoParkBridgeRight", group = "Linear Opmode")
 
 //@Disabled
-public class AutoStrafeRightFwd extends LinearOpMode {
+public class AutoParkBridgeRight extends LinearOpMode {
 
     // Declare OpMode members.
     private MecanumDriveChassisAutonomous driveChassis;
