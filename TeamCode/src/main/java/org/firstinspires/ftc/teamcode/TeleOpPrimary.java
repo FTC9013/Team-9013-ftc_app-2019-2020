@@ -16,13 +16,10 @@ public class TeleOpPrimary extends LinearOpMode {
   private final double highSpeed = 1.0;
   private final double lowSpeed = 0.5;
 
-  private final int extenderRetracted  = 0;
-  private final int extenderExtended  = 700;
-
   private final int elevatorDown  = 00;
-  private final int elevatorLevelOne    = 100;
-  private final int elevatorLevelTwo    = 450;
-  private final int elevatorLevelThree  = 1000;
+  private final int elevatorLevelOne    = 800;
+  private final int elevatorLevelTwo    = 1600;
+  private final int elevatorLevelThree  = 2400;
 
 
   private final boolean suckStones = true;
@@ -123,11 +120,10 @@ public class TeleOpPrimary extends LinearOpMode {
       if (gamepad1.a && !suckingStones && !spittingStones)
       {
         suckingStones = true;
-        manipulatorPlatform.extenderPosition(extenderRetracted);
+        manipulatorPlatform.extenderIn();
         manipulatorPlatform.gatherOn(suckStones);
         manipulatorPlatform.gatherDown();
         manipulatorPlatform.gatherHold();
-        manipulatorPlatform.extenderPosition(extenderRetracted);
       }
 
       if (suckingStones && manipulatorPlatform.stonePresent())
@@ -200,12 +196,12 @@ public class TeleOpPrimary extends LinearOpMode {
       // Backward push command Extender all the way in (encoder count = 0)
       if (gamepad2.right_stick_y < -0.5) // forward in -Y
       {
-        manipulatorPlatform.extenderPosition(extenderExtended);
+        manipulatorPlatform.extenderOut();
       }
 
       if (gamepad2.right_stick_y > 0.5) // Backward is +Y
       {
-        manipulatorPlatform.extenderPosition(extenderRetracted);
+        manipulatorPlatform.extenderIn();
       }
 
       // D‐PAD – Controls Grabber head orientation (0° or 90°)
@@ -258,6 +254,12 @@ public class TeleOpPrimary extends LinearOpMode {
       if (gamepad2.b)   // Extend
       {
         manipulatorPlatform.elevatorPosition(elevatorDown);
+      }
+
+      // Back button – resets the elevator
+      if (gamepad2.back)
+      {
+        manipulatorPlatform.resetExtender();
       }
     }
   }

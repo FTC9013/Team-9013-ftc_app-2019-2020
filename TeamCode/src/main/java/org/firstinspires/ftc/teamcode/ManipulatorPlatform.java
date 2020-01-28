@@ -25,6 +25,8 @@ public class ManipulatorPlatform
   private Servo gatherReleaseServo = null;
 
   private RevTouchSensor stonePresentSensor = null;
+  private RevTouchSensor extenderRetractedSensor = null;
+
 
   static final double elevatorP = 40;
   static final double elevatorI = 0;
@@ -36,6 +38,9 @@ public class ManipulatorPlatform
   static final double extenderD = 0;
   static final double extenderF = 0;
 
+
+  private final int extenderRetracted  = 0;
+  private final int extenderExtended  = 700;
 
   ManipulatorPlatform(HardwareMap hardwareMap)
   {
@@ -54,7 +59,7 @@ public class ManipulatorPlatform
     gatherReleaseServo = hardwareMap.get(Servo.class, "grServo");
 
     stonePresentSensor = hardwareMap.get(RevTouchSensor.class,"spSensor");
-
+    extenderRetractedSensor = hardwareMap.get(RevTouchSensor.class,"exSensor");
 
     gatherLeftMotor = (DcMotorEx)hardwareMap.get(DcMotor.class, "lGMotor");
     gatherRightMotor = (DcMotorEx)hardwareMap.get(DcMotor.class, "rGMotor");
@@ -71,7 +76,7 @@ public class ManipulatorPlatform
 
 
     elevatorMotor = (DcMotorEx)hardwareMap.get(DcMotor.class, "elMotor");
-    elevatorMotor.setDirection(DcMotor.Direction.FORWARD);
+    elevatorMotor.setDirection(DcMotor.Direction.REVERSE);
     PIDFCoefficients elevatorPIDNew = new PIDFCoefficients( elevatorP, elevatorI, elevatorD, elevatorF );
     elevatorMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_TO_POSITION, elevatorPIDNew);
     elevatorMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -159,6 +164,18 @@ public class ManipulatorPlatform
   }
 
 
+  void extenderOut()
+  {
+    extenderMotor.setTargetPosition(extenderExtended);
+  }
+
+
+  void extenderIn()
+  {
+    extenderMotor.setTargetPosition(extenderRetracted);
+  }
+
+
   void latchPosition(boolean position)
   {
     if(position) // Closed (1)
@@ -201,6 +218,24 @@ public class ManipulatorPlatform
   boolean stonePresent()
   {
     return stonePresentSensor.isPressed();
+  }
+
+  void resetExtender()
+  {
+    boolean calFlag = true;
+    extenderPosition(-200);
+    while( calFlag )
+    {
+      // wait till it hits the switch or stops moving
+      if (extenderRetractedSensor.isPressed() || Math.abs(extenderMotor.getCurrentPosition()) > 150 )
+      {
+        calFlag = false;
+      }
+    }
+    extenderMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    extenderMotor.setTargetPosition(0);
+    extenderMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+    extenderMotor.setPower(1);
   }
 
 }
